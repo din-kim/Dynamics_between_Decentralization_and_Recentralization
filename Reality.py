@@ -1,7 +1,4 @@
-
-"""
-Reality
-"""
+import random
 
 
 class Reality:

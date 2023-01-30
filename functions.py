@@ -1,3 +1,10 @@
+# Import libraries
+import numpy as np
+import random
+
+from psutil import users
+
+
 # FUNCTIONS
 
 """
@@ -29,22 +36,49 @@ def distribute_tokens(n, t, dr):
 
 def performance_calculator(organization, reality):
     cnt = 0
-    for i in range(m):
+    for i in range(organization.m):
         if reality.vector[i] == organization.vector[i]:
             cnt += 1
-    performance = cnt/m
+    performance = cnt/organization.m
     return performance
 
 
 def knowledge_calculator(user, organization):
     cnt = 0
-    for i in range(m):
+    for i in range(organization.m):
         if user.vector[i] == organization.vector[i]:
             cnt += 1
-    knowledge = cnt/m
+    knowledge = cnt/organization.m
     return knowledge
 
 
 def AOD_calculator(user):
     AOD = user.p * user.knowledge
     return AOD
+
+
+def generate_vote_list(m, v):
+    vote_list = random.sample(list(range(m)), v)
+    return vote_list
+
+
+def vote_handler(reality, organization, users, vote_list, show_vote_result='y', show_vote_change='y'):
+    print("****************************************")
+    print("**************** VOTE TARGET: {} ****************".format(vote_list))
+    print("****************************************")
+    print()
+    print()
+
+    for vote_target in vote_list:
+        vote_result = organization.initiate_vote_on(vote_target, users)
+
+        if show_vote_result == 'y':
+            organization.show_vote_result(vote_result)
+        if show_vote_change == 'y':
+            organization.show_vote_change()
+
+    ctrs = organization.collect_ctrs()
+    know = organization.avg_knowledge()
+    perf = organization.performance_calculator(reality)
+
+    return ctrs, know, perf
