@@ -1,10 +1,8 @@
 import numpy as np
 import random
-from psutil import users
 
-from sympy import maximum
 
-from functions import distribute_tokens, knowledge_calculator
+from functions import generate_user_vector, knowledge_calculator
 
 
 class User:
@@ -12,8 +10,8 @@ class User:
         self.id = ids.pop(0)
         self.m = m
         self.k = k
-        self.vector = [random.randint(0, 1) for _ in range(self.m)]
-        self.p = random.uniform(0, 1)
+        self.vector = generate_user_vector(organization)
+        self.p = 1  # random.uniform(0, 1)
         self.p_yn = self.p > random.random()
         self.knowledge = knowledge_calculator(self, organization)
         self.token = tokens.pop()
@@ -33,7 +31,14 @@ class User:
             if self.vector[i] == organization.vector[i]:
                 cnt += 1
         self.knowledge = cnt/self.m
+
         return self.knowledge
+
+    def AOD_calculator(self):
+        self.AOD = self.p * self.knowledge
+
+    def get_p_yn(self):
+        return self.p > random.uniform(0, 1)
 
     def vote(self, vote_on, users):
         self.users = users

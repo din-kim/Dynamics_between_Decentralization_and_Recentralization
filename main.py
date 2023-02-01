@@ -21,12 +21,12 @@ Variables
 - dr: distribution rate of tokens
 """
 
-rds = 100
+rds = 1
 v = 10
-m = 100
-n = 100
+m = 10
+n = 5
 k = 0
-t = 100000
+t = 100
 dr = 1
 tokens = list(distribute_tokens(n, t, dr))
 ids = list(range(n))
@@ -43,10 +43,6 @@ for i in range(n):
 
 
 if __name__ == '__main__':
-    ctr_list = []
-    know_list = []
-    perf_list = []
-
     for rd in range(rds):
         vote_list = generate_vote_list(m, v)
         ctr_list, know_list, perf_list = vote_handler(

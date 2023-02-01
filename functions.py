@@ -1,8 +1,7 @@
 # Import libraries
 import numpy as np
 import random
-
-from psutil import users
+import matplotlib.pyplot as plt
 
 
 # FUNCTIONS
@@ -45,7 +44,7 @@ def performance_calculator(organization, reality):
 
 def knowledge_calculator(user, organization):
     cnt = 0
-    for i in range(organization.m):
+    for i in range(user.m):
         if user.vector[i] == organization.vector[i]:
             cnt += 1
     knowledge = cnt/organization.m
@@ -62,23 +61,94 @@ def generate_vote_list(m, v):
     return vote_list
 
 
-def vote_handler(reality, organization, users, vote_list, show_vote_result='y', show_vote_change='y'):
+def vote_handler(reality, organization, users, vote_list):
+    vots = []
+    deles = []
+    vot_anys = []
+    p_ys = []
+    p_ns = []
+    knws = []
+    prfs = []
+
     print("****************************************")
-    print("**************** VOTE TARGET: {} ****************".format(vote_list))
+    print("VOTE TARGET: {}".format(vote_list))
     print("****************************************")
     print()
     print()
 
     for vote_target in vote_list:
         vote_result = organization.initiate_vote_on(vote_target, users)
+        organization.change_attr(vote_result)
+        organization.show_vote_result(vote_result)
+        organization.show_vote_change()
 
-        if show_vote_result == 'y':
-            organization.show_vote_result(vote_result)
-        if show_vote_change == 'y':
-            organization.show_vote_change()
+        vot_ctr, del_ctr, vot_any_ctr = organization.vote_category_ctrs()
+        vots.append(vot_ctr)
+        deles.append(del_ctr)
+        vot_anys.append(vot_any_ctr)
+        p_y, p_n = organization.participation_ctrs()
+        p_ys.append(p_y)
+        p_ns.append(p_n)
+        knws.append(organization.avg_knowledge())
+        prfs.append(organization.performance_calculator(reality))
 
-    ctrs = organization.collect_ctrs()
-    know = organization.avg_knowledge()
-    perf = organization.performance_calculator(reality)
+    return vots, deles, vot_anys, p_ys, p_ns, knws, prfs
 
-    return ctrs, know, perf
+
+def generate_user_vector(organization):
+    m = len(organization.vector)
+    nums = list(range(m))
+    random_know = random.uniform(0, 1)
+    idxs = random.sample(nums, int(np.floor(random_know*m)))
+    user_vector = [None] * m
+
+    # match values between user and organization as random knowledge value
+    for idx in idxs:
+        user_vector[idx] = organization.vector[idx]
+
+    # then unmatch the rest values
+    for i in range(m):
+        if user_vector[i] == None:
+            user_vector[i] = int(not(organization.vector[i]))
+
+    return user_vector
+
+
+def plot_vote_category_cnts(vots, deles, vot_anys):
+    plt.figure(figsize=(12, 6))
+    plt.plot(np.array(vots).ravel(), label='Vote',
+             color='limegreen', marker='o', ls='--')
+    plt.plot(np.array(deles).ravel(), label='Delegate',
+             color='violet', marker='o', ls='--')
+    plt.plot(np.array(vot_anys).ravel(), label='Vote-Anyway',
+             color='dodgerblue', marker='o', ls='--')
+    plt.title('Vote vs. Delegate vs. Vote Anyway')
+    plt.xlabel('votes')
+    plt.ylabel('counts')
+    plt.grid(axis='x', alpha=0.5, ls=':')
+    plt.legend(loc='lower right')
+
+
+def plot_knowledge_performance(knws, prfs):
+    plt.figure(figsize=(12, 6))
+    plt.plot(np.array(knws).ravel(), label='knowledge',
+             color='red', marker='*', ls='--')
+    plt.plot(np.array(prfs).ravel(), label='performance',
+             color='purple', marker='*', ls='--')
+    plt.title("Knowledge & Performance")
+    plt.xlabel('votes')
+    plt.ylabel('counts')
+    plt.grid(axis='x', alpha=0.5, ls=':')
+    plt.legend(loc='lower right')
+
+
+def plot_participation(p_ys):
+    plt.figure(figsize=(12, 6))
+    plt.plot(np.array(p_ys).ravel(), label='participated',
+             color='tab:orange', marker='o', ls='--')
+
+    plt.title('Participation')
+    plt.xlabel('votes')
+    plt.ylabel('counts')
+    plt.grid(axis='x', alpha=0.5, ls=':')
+    plt.legend(loc='lower right')

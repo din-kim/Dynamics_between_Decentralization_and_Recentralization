@@ -1,4 +1,5 @@
 # Import libraries
+from attr import attr
 import numpy as np
 import random
 
@@ -26,7 +27,7 @@ class Organization:
         self.users = users
         self.vote_on = vote_on
         print("============================================")
-        print("======== INITIATING A VOTE ON ATTR#{} ({}) ========".format(
+        print("INITIATING A VOTE ON ATTR#{}({})".format(
             vote_on, self.vector[vote_on]))
         print("============================================")
         print()
@@ -36,6 +37,7 @@ class Organization:
 
         for user in users:
             # re-initiate the values in every vote
+            user.p_yn = user.get_p_yn()
             user.voted = False
             user.delegated = False
             user.tokens_delegated = 0
@@ -44,6 +46,8 @@ class Organization:
             user.delegate_ctr = 0
             user.vote_anyway_ctr = 0
             self.changed = False
+            user.knowledge_calculator(self)
+            user.AOD_calculator()
 
         for user in users:
             print("user#{} initiates voting.".format(user.id))
@@ -62,7 +66,7 @@ class Organization:
                 print()
 
         print("============================================")
-        print("======== VOTING ENDED ========")
+        print("VOTING ENDED")
         print("============================================")
         print()
 
@@ -80,23 +84,22 @@ class Organization:
 
         attr_val_after = self.vector[vote_on]
 
+        print("Changing Organization", end="..........")
         if attr_val_before != attr_val_after:
-            print("Changing Organization", end="..........")
             self.changed = True
-            print("Complete!")
-            print()
+        print("Complete!")
+        print()
 
         # change User's attribute
-            print("Changing user(s)", end="")
-            for user in self.users:
-                if user.voted:
-                    if attr_val_before != attr_val_after:
-                        print('heelo')
-                        print(".", end="")
-                        user.vector[vote_on] = attr_val_after
-                        user.changed = True
-            print("Complete!")
-            print()
+        print("Changing user(s)", end="")
+        for user in self.users:
+            if user.voted:
+                if attr_val_before != attr_val_after:
+                    print(".", end="")
+                    user.vector[vote_on] = attr_val_after
+                    user.changed = True
+        print("Complete!")
+        print()
 
     def show_vote_result(self, vote_result):
         total_vote_cnts = 0
@@ -104,7 +107,9 @@ class Organization:
             if user.voted:
                 total_vote_cnts += 1
 
+        self.total_vote_cnts = total_vote_cnts
         n = len(self.users)
+
         print("Total Voters: {}".format(n))
         print("== Vote: {}".format(total_vote_cnts))
         print("== No Vote: {}".format(n-total_vote_cnts))
@@ -120,25 +125,30 @@ class Organization:
     def show_vote_change(self):
         vote_on = self.vote_on
         print("Regarding ATTR#{}".format(vote_on))
+        if self.total_vote_cnts == 0:
+            print("No one vote, thus Nothing changed.")
+        else:
+            if self.changed:
+                print("Organization changed.")
+                print("== Performance change: {} ===> {}".format(
+                    self.performance, self.performance_calculator(self.reality)))
+                print()
+            else:
+                print("Organization did not change.")
 
-        if self.changed:
-            print("Organization changed.")
-            print("== Performance change: {} ===> {}".format(
-                self.performance, self.performance_calculator(self.reality)))
-            print()
-
-            print("User changed.")
+            print("Check if user(s) changed.")
             for user in self.users:
                 if user.voted and user.changed:
                     print("== user#{} knowledge change: {} ===> {}".format(
                         user.id, user.knowledge, user.knowledge_calculator(self)))
-            print()
-
             print("========================")
             print()
             print()
+            print("SESSION END")
+            print()
+            print()
 
-    def collect_ctrs(self):
+    def vote_category_ctrs(self):
         vote_ctr_sum = 0
         delegate_ctr_sum = 0
         vote_anyway_ctr_sum = 0
@@ -148,8 +158,19 @@ class Organization:
             delegate_ctr_sum += user.delegate_ctr
             vote_anyway_ctr_sum += user.vote_anyway_ctr
 
-        ctr_list = [vote_ctr_sum, delegate_ctr_sum, vote_anyway_ctr_sum]
-        return ctr_list
+        vot_ctr = vote_ctr_sum
+        dele_ctr = delegate_ctr_sum
+        vot_any_ctr = vote_anyway_ctr_sum
+        return vot_ctr, dele_ctr, vot_any_ctr
+
+    def participation_ctrs(self):
+        p_y_cnt = 0
+        for user in self.users:
+            if user.voted:
+                p_y_cnt += 1
+
+        p_n_cnt = len(self.users) - p_y_cnt
+        return p_y_cnt, p_n_cnt
 
     def avg_knowledge(self):
         knowledge_sum = 0
