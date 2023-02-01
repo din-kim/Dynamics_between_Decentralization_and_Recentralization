@@ -1,6 +1,8 @@
 import numpy as np
 import random
 
+from sympy import maximum
+
 
 from functions import generate_user_vector, knowledge_calculator
 
@@ -11,7 +13,7 @@ class User:
         self.m = m
         self.k = k
         self.vector = generate_user_vector(organization)
-        self.p = 1  # random.uniform(0, 1)
+        self.p = random.uniform(0, 1)
         self.p_yn = self.p > random.random()
         self.knowledge = knowledge_calculator(self, organization)
         self.token = tokens.pop()
@@ -31,7 +33,6 @@ class User:
             if self.vector[i] == organization.vector[i]:
                 cnt += 1
         self.knowledge = cnt/self.m
-
         return self.knowledge
 
     def AOD_calculator(self):
@@ -99,31 +100,30 @@ class User:
         maximum_AOD = 0
         search_cnt = 0
         inter_cnt = 0
-
-        for i in range(len(search)):
+        for s in search:
             # check if a delegatee candidate participates in voting
-            if search[i].p_yn:
+            if s.p_yn:
                 search_cnt += 1
                 # check if a delegatee candidate's AOD is higher than a delegator's knowledge
-                if search[i].AOD > maximum_AOD:
+                if s.AOD > maximum_AOD:
                     # check if all interdependent attribute values are all matched between delegatee and delegator.
-                    if self.check_interdependence(k, search[i]):
+                    if self.check_interdependence(k, s):
                         inter_cnt += 1
-                        maximum_AOD = search[i].AOD
-                        maximum_idx = search[i].id
+                        maximum_AOD = s.AOD
+                        maximum_idx = s.id
 
-                if search_cnt == 0:
-                    print("== Search Failed: All searched users do not participate.")
-                    return self.vote_anyway()
-                elif inter_cnt == 0:
-                    print("== Search Failed: user#{} is not interdependent with all searched users.".format(
-                        self.id))
-                    return self.vote_anyway()
-                elif maximum_AOD < self.knowledge:
-                    print("== Search Failed: user#{}'s knowledge is higher than other users' AOD.".format(
-                        self.id))
-                    return self.vote_anyway()
-                else:
-                    print("== Search Succeed: Start Delegating!")
-                    delegatee = self.users[maximum_idx]
-                    return self.delegate(delegatee)
+        if search_cnt == 0:
+            print("== Search Failed: All searched users do not participate.")
+            return self.vote_anyway()
+        elif inter_cnt == 0:
+            print("== Search Failed: user#{} is not interdependent with all searched users.".format(
+                self.id))
+            return self.vote_anyway()
+        elif self.knowledge > maximum_AOD:
+            print("== Search Failed: user#{}'s knowledge is higher than other users' AOD.".format(
+                self.id))
+            return self.vote_anyway()
+        elif self.knowledge < maximum_AOD:
+            print("== Search Succeed: Start Delegating!")
+            delegatee = self.users[maximum_idx]
+            return self.delegate(delegatee)
