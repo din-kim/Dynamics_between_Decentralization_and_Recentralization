@@ -64,7 +64,6 @@ def generate_vote_list(m, v):
 def vote_handler(reality, organization, users, vote_list):
     vots = []
     deles = []
-    vot_anys = []
     p_ys = []
     p_ns = []
     knws = []
@@ -77,22 +76,26 @@ def vote_handler(reality, organization, users, vote_list):
     print()
 
     for vote_target in vote_list:
-        vote_result = organization.initiate_vote_on(vote_target, users)
-        organization.change_attr(vote_result)
+        vote_result, chosen_value = organization.initiate_vote_on(
+            vote_target, users)
+        performance_before, performance_after = organization.change_org_attr(
+            chosen_value)
+        knows = organization.change_usr_attr(
+            chosen_value)
+        organization.show_vote_change(
+            performance_before, performance_after, knows)
         organization.show_vote_result(vote_result)
-        organization.show_vote_change()
 
-        vot_ctr, del_ctr, vot_any_ctr = organization.vote_category_ctrs()
+        vot_ctr, del_ctr = organization.vote_category_ctrs()
         vots.append(vot_ctr)
         deles.append(del_ctr)
-        vot_anys.append(vot_any_ctr)
         p_y, p_n = organization.participation_ctrs()
         p_ys.append(p_y)
         p_ns.append(p_n)
         knws.append(organization.avg_knowledge())
         prfs.append(organization.performance_calculator(reality))
 
-    return vots, deles, vot_anys, p_ys, p_ns, knws, prfs
+    return vots, deles, p_ys, p_ns, knws, prfs
 
 
 def generate_user_vector(organization):
@@ -114,14 +117,12 @@ def generate_user_vector(organization):
     return user_vector
 
 
-def plot_vote_category_cnts(vots, deles, vot_anys):
+def plot_vote_category_cnts(vots, deles):
     plt.figure(figsize=(12, 6))
     plt.plot(np.array(vots).ravel(), label='Vote',
-             color='limegreen', marker='o', ls='--')
+             color='tab:orange', marker='o', ls='--')
     plt.plot(np.array(deles).ravel(), label='Delegate',
-             color='violet', marker='o', ls='--')
-    plt.plot(np.array(vot_anys).ravel(), label='Vote-Anyway',
-             color='dodgerblue', marker='o', ls='--')
+             color='tab:blue', marker='o', ls='--')
     plt.title('Vote vs. Delegate vs. Vote Anyway')
     plt.xlabel('votes')
     plt.ylabel('counts')
@@ -145,7 +146,7 @@ def plot_knowledge_performance(knws, prfs):
 def plot_participation(p_ys):
     plt.figure(figsize=(12, 6))
     plt.plot(np.array(p_ys).ravel(), label='participated',
-             color='tab:orange', marker='o', ls='--')
+             color='limegreen', marker='o', ls='--')
 
     plt.title('Participation')
     plt.xlabel('votes')
