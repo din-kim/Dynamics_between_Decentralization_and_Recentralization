@@ -1,4 +1,5 @@
 # Import libraries
+from cProfile import label
 import numpy as np
 import random
 import matplotlib.pyplot as plt
@@ -151,47 +152,61 @@ def vote_handler(reality, organization, users, vote_list):
     return vote_sum_list, dele_sum_list, dele_cnt_list, part_list, know_list, perf_list
 
 
+def mean_vote_result(var, n_o):
+    var = np.array(var)
+    if n_o == 1:
+        var = var.ravel()
+        return var
+    else:
+
+        if len(var) > 1:
+            x = var[0].ravel()
+            for i in range(1, len(var)):
+                y = var[i].ravel()
+                x = [x+y for x, y in zip(x, y)]
+        res = np.array(x)/n_o
+        return res
+
+
+def mean_know_perf_part_result(var):
+    res = np.array(var).ravel()
+    return res
+
+
 """
-(6) Plots
-- Vote catgory: plotting whether user votes or delegates in each round.
-- Knowledge & performance: Plotting average knowledge and performance in each round.
-- Participatrion: Plotting how many users participate in each round.
+(6) Plotting
 """
 
 
-def plot_vote_category_cnts(vots, deles):
+def plot_vote_dele_result(vote_res, dele_res):
     plt.figure(figsize=(12, 6))
-    plt.plot(np.array(vots).ravel(), label='Vote',
-             color='tab:orange', marker='o', ls='--')
-    plt.plot(np.array(deles).ravel(), label='Delegate',
+    plt.plot(vote_res, label='Vote', color='tab:orange', marker='o', ls='--')
+    plt.plot(dele_res, label='Delegate',
              color='tab:blue', marker='o', ls='--')
-    plt.title('Vote vs. Delegate')
-    plt.xlabel('votes')
+    plt.xlabel('votes/rounds')
     plt.ylabel('counts')
     plt.grid(axis='x', alpha=0.5, ls=':')
-    plt.legend(loc='lower right')
+    plt.legend(loc='upper left')
 
 
-def plot_knowledge_performance(knws, prfs):
+def plot_know_perf_result(know_res, perf_res):
     plt.figure(figsize=(12, 6))
-    plt.plot(np.array(knws).ravel(), label='knowledge',
-             color='red', marker='*', ls='--')
-    plt.plot(np.array(prfs).ravel(), label='performance',
-             color='purple', marker='*', ls='--')
-    plt.title("Knowledge & Performance")
-    plt.xlabel('votes')
+    plt.plot(know_res, label='Knowledge', color='red', marker='o', ls='--')
+    plt.plot(perf_res, label='Performance',
+             color='green', marker='*', ls='--')
+    plt.xlabel('votes/rounds')
     plt.ylabel('counts')
     plt.grid(axis='x', alpha=0.5, ls=':')
-    plt.legend(loc='lower right')
+    plt.legend(loc='upper left')
 
 
-def plot_participation(p_ys):
+def plot_part_res(res, n):
     plt.figure(figsize=(12, 6))
-    plt.plot(np.array(p_ys).ravel(), label='participated',
-             color='limegreen', marker='o', ls='--')
-
+    plt.plot(res, label='participated',
+             color='purple', marker='o', ls='--')
     plt.title('Participation')
     plt.xlabel('votes')
     plt.ylabel('counts')
+    plt.ylim(0, n)
     plt.grid(axis='x', alpha=0.5, ls=':')
-    plt.legend(loc='lower right')
+    plt.legend(loc='lower left')
