@@ -6,12 +6,12 @@ from functions import generate_user_vector, knowledge_calculator
 
 
 class User:
-    def __init__(self, m, k, organization, ids, tokens):
+    def __init__(self, m, k, p, organization, ids, tokens):
         self.id = ids.pop(0)
         self.m = m
         self.k = k
         self.vector = generate_user_vector(organization)
-        self.p = random.uniform(0, 1)
+        self.p = p
         self.p_yn = self.p > random.random()
         self.knowledge = knowledge_calculator(self, organization)
         self.token = tokens.pop()
@@ -36,7 +36,6 @@ class User:
 
     def vote(self, vote_on):
         self.vote_ctr += 1
-        
         self.voted = True
         return self.vector[vote_on], self.token
 
@@ -53,7 +52,12 @@ class User:
         cnt = 0
         idxs = list(range(self.m))
         idxs.pop(self.vote_on)
-        chosen_idxs = random.sample(idxs, self.k)
+
+        if self.k >= self.m:
+            print()
+            print("==== Error occured: m must be larger than k! ====")
+        else:
+            chosen_idxs = random.sample(idxs, self.k)
 
         for idx in chosen_idxs:
             if self.vector[idx] == candidate.vector[idx]:
@@ -79,23 +83,24 @@ class User:
             print("== Start Searching!")
 
             max_knowledge = 0
-            inter_cnt = 0
 
             for s in search:
                 if s.p_yn:
                     if self.check_interdependence(s):
                         if s.knowledge > max_knowledge:
-                            inter_cnt += 1
                             max_knowledge = s.knowledge
                             max_idx = s.id
 
-            if self.knowledge < max_knowledge:
+            if max_knowledge == 0:
+                print("There is no interdependent users.")
+            elif self.knowledge < max_knowledge:
                 print("== Search Succeed: Start Delegating!")
                 delegatee = self.organization.users[max_idx]
                 return self.delegate(delegatee)
-            else:
-                if s.p_yn:
-                    print("User has the higher knowledge than searched ones")
+            elif self.knowledge >= max_knowledge:
+                if self.p_yn:
+                    print("User has the higher knowledge than searched ones.")
                     return self.vote(vote_on)
                 else:
+                    print("User does not participate in voting this time.")
                     return

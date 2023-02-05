@@ -9,7 +9,7 @@ from functions import *
 class Organization:
     def __init__(self, m, reality):
         self.m = m
-        self.vector = [random.randint(0, 1) for _ in range(self.m)]
+        self.vector = generate_org_vector(reality)
         self.performance = performance_calculator(self, reality)
         self.reality = reality
         self.changed = False
@@ -93,7 +93,7 @@ class Organization:
     def change_usr_attr(self, chosen_value):
         knos = []
         # change User's attribute
-        print("Changing user(s)")
+        print("Changing user(s)", end="")
         for user in self.users:
             kno_bf = user.knowledge
             if user.voted:
@@ -103,7 +103,6 @@ class Organization:
                     user.changed = True
             kno_af = user.knowledge_calculator(self)
             knos.append([kno_bf, kno_af])
-        print()
         print("Complete!")
         print()
         return knos
@@ -152,6 +151,12 @@ class Organization:
 
         print("========================")
 
+    def record_dele_cnts(self):
+        delegate_ctr_per_user = []
+        for user in self.users:
+            delegate_ctr_per_user.append([user.id, user.delegate_ctr])
+        return delegate_ctr_per_user
+
     def vote_category_ctrs(self):
         vote_ctr_sum = 0
         delegate_ctr_sum = 0
@@ -160,18 +165,14 @@ class Organization:
             vote_ctr_sum += user.vote_ctr
             delegate_ctr_sum += user.delegate_ctr
 
-        vot_ctr = vote_ctr_sum
-        dele_ctr = delegate_ctr_sum
-        return vot_ctr, dele_ctr
+        return vote_ctr_sum, delegate_ctr_sum
 
     def participation_ctrs(self):
         p_y_cnt = 0
         for user in self.users:
             if user.voted:
                 p_y_cnt += 1
-
-        p_n_cnt = len(self.users) - p_y_cnt
-        return p_y_cnt, p_n_cnt
+        return p_y_cnt
 
     def avg_knowledge(self):
         knowledge_sum = 0
