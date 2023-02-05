@@ -17,7 +17,7 @@ class Organization:
     def performance_calculator(self, reality):
         cnt = 0
         for i in range(self.m):
-            if self.vector[i] == reality.vector[i]:
+            if self.vector[i] == reality.vector[i]: 
                 cnt += 1
         # renew performance here
         self.performance = cnt/self.m
@@ -79,32 +79,25 @@ class Organization:
         attr_val_after = chosen_value
 
         per_bf = self.performance
-        print("Changing Organization", end="..........")
 
         if attr_val_before != attr_val_after:
             self.changed = True
             self.vector[self.vote_on] = attr_val_after
 
         per_af = self.performance_calculator(self.reality)
-        print("Complete!")
-        print()
         return per_bf, per_af
 
     def change_usr_attr(self, chosen_value):
         knos = []
         # change User's attribute
-        print("Changing user(s)", end="")
         for user in self.users:
             kno_bf = user.knowledge
             if user.voted:
                 if user.vector[self.vote_on] != chosen_value:
-                    print(".", end="")
                     user.vector[self.vote_on] = chosen_value
                     user.changed = True
             kno_af = user.knowledge_calculator(self)
             knos.append([kno_bf, kno_af])
-        print("Complete!")
-        print()
         return knos
 
     def show_vote_change(self, per_bf, per_af, knos):

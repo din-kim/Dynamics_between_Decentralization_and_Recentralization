@@ -122,19 +122,11 @@ def vote_handler(reality, organization, users, vote_list):
     know_list = []
     perf_list = []
 
-    print("****************************************")
-    print("VOTE TARGET: {}".format(vote_list))
-    print("****************************************")
-    print()
-    print()
-
     for vote_target in vote_list:
         vote_result, chosen_value = organization.initiate_vote_on(
             vote_target, users)
         perf_before, perf_after = organization.change_org_attr(chosen_value)
         knows = organization.change_usr_attr(chosen_value)
-        organization.show_vote_change(perf_before, perf_after, knows)
-        organization.show_vote_result(vote_result)
 
         vot_ctr_sum, dele_ctr_sum = organization.vote_category_ctrs()
         vote_sum_list.append(vot_ctr_sum)

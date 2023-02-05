@@ -44,8 +44,6 @@ class User:
         self.voted = True
         delegatee.delegated = True
         delegatee.tokens_delegated = self.token
-        print("user#{} delegated {} tokens to user#{}".format(
-            self.id, self.token, delegatee.id))
         return delegatee.vector[self.vote_on], delegatee.tokens_delegated
 
     def check_interdependence(self, candidate):
@@ -53,11 +51,7 @@ class User:
         idxs = list(range(self.m))
         idxs.pop(self.vote_on)
 
-        if self.k >= self.m:
-            print()
-            print("==== Error occured: m must be larger than k! ====")
-        else:
-            chosen_idxs = random.sample(idxs, self.k)
+        chosen_idxs = random.sample(idxs, self.k)
 
         for idx in chosen_idxs:
             if self.vector[idx] == candidate.vector[idx]:
@@ -71,16 +65,12 @@ class User:
     def search(self, vote_on):
         self.vote_on = vote_on
         if self.delegated:
-            print("Delegatee must vote!")
             return self.vote(vote_on)
         else:
             search = random.sample(self.organization.users, round(
                 len(self.organization.users)*self.p))
             if self in search:
                 search.remove(self)
-
-            print("= user#{} is searching {} users.".format(self.id, len(search)))
-            print("== Start Searching!")
 
             max_knowledge = 0
 
@@ -91,16 +81,11 @@ class User:
                             max_knowledge = s.knowledge
                             max_idx = s.id
 
-            if max_knowledge == 0:
-                print("There is no interdependent users.")
-            elif self.knowledge < max_knowledge:
-                print("== Search Succeed: Start Delegating!")
+            if self.knowledge < max_knowledge:
                 delegatee = self.organization.users[max_idx]
                 return self.delegate(delegatee)
             elif self.knowledge >= max_knowledge:
                 if self.p_yn:
-                    print("User has the higher knowledge than searched ones.")
                     return self.vote(vote_on)
                 else:
-                    print("User does not participate in voting this time.")
                     return
