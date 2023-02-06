@@ -1,5 +1,4 @@
 # Import libraries
-from cProfile import label
 import numpy as np
 import random
 import matplotlib.pyplot as plt
@@ -144,7 +143,7 @@ def vote_handler(reality, organization, users, vote_list):
     return vote_sum_list, dele_sum_list, dele_cnt_list, part_list, know_list, perf_list
 
 
-def mean_vote_result(var, n_o):
+def mean_result(var, n_o):
     var = np.array(var)
     if n_o == 1:
         var = var.ravel()
@@ -160,11 +159,6 @@ def mean_vote_result(var, n_o):
         return res
 
 
-def mean_know_perf_part_result(var):
-    res = np.array(var).ravel()
-    return res
-
-
 """
 (6) Plotting
 """
@@ -172,9 +166,10 @@ def mean_know_perf_part_result(var):
 
 def plot_vote_dele_result(vote_res, dele_res):
     plt.figure(figsize=(12, 6))
-    plt.plot(vote_res, label='Vote', color='tab:orange', marker='o', ls='--')
+    plt.plot(vote_res, label='Vote', color='tab:orange',
+             marker='o', ls='dotted')
     plt.plot(dele_res, label='Delegate',
-             color='tab:blue', marker='o', ls='--')
+             color='tab:blue', marker='o', ls='dotted')
     plt.xlabel('votes/rounds')
     plt.ylabel('counts')
     plt.grid(axis='x', alpha=0.5, ls=':')
@@ -183,7 +178,7 @@ def plot_vote_dele_result(vote_res, dele_res):
 
 def plot_know_perf_result(know_res, perf_res):
     plt.figure(figsize=(12, 6))
-    plt.plot(know_res, label='Knowledge', color='red', marker='o', ls='--')
+    plt.plot(know_res, label='Knowledge', color='red', marker='*', ls='--')
     plt.plot(perf_res, label='Performance',
              color='green', marker='*', ls='--')
     plt.xlabel('votes/rounds')
@@ -195,10 +190,10 @@ def plot_know_perf_result(know_res, perf_res):
 def plot_part_res(res, n):
     plt.figure(figsize=(12, 6))
     plt.plot(res, label='participated',
-             color='purple', marker='o', ls='--')
+             color='purple', marker='o')
     plt.title('Participation')
     plt.xlabel('votes')
     plt.ylabel('counts')
     plt.ylim(0, n)
     plt.grid(axis='x', alpha=0.5, ls=':')
-    plt.legend(loc='lower left')
+    plt.legend(loc='upper left')
