@@ -17,7 +17,7 @@ class Organization:
     def performance_calculator(self, reality):
         cnt = 0
         for i in range(self.m):
-            if self.vector[i] == reality.vector[i]: 
+            if self.vector[i] == reality.vector[i]:
                 cnt += 1
         # renew performance here
         self.performance = cnt/self.m
@@ -26,14 +26,8 @@ class Organization:
     def initiate_vote_on(self, vote_on, users):
         self.users = users
         self.vote_on = vote_on
-        print("============================================")
-        print("INITIATING A VOTE ON ATTR#{}({})".format(
-            vote_on, self.vector[vote_on]))
-        print("============================================")
-        print()
 
         vote_result = [0, 0]
-        print(">>>>>>>>>>>>>>>>")
 
         # re-initiate the values in every vote
         for user in users:
@@ -47,25 +41,14 @@ class Organization:
             self.changed = False
 
         for user in users:
-            print("user#{} initiates voting.".format(user.id))
             # Call vote function - here begins vote, search, and delegate
             result = user.search(vote_on)
 
             if result == None:
-                print("Did not exercise the voting right!")
-                print("----------------")
-                print()
+                pass
             else:
                 vote_on_value, token = result
                 vote_result[vote_on_value] += token
-                print("Vote success!")
-                print("----------------")
-                print()
-
-        print("============================================")
-        print("VOTING ENDED")
-        print("============================================")
-        print()
 
         if vote_result[0] > vote_result[1]:
             chosen_value = 0
@@ -102,8 +85,6 @@ class Organization:
 
     def show_vote_change(self, per_bf, per_af, knos):
         vote_on = self.vote_on
-        print("Regarding ATTR#{}".format(vote_on))
-
         if self.changed:
             print("Organization changed.")
             print("== Performance change: {} ===> {}".format(per_bf, per_af))
