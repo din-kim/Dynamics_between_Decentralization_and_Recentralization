@@ -1,7 +1,6 @@
 import numpy as np
 import random
-from Organization import Organization
-
+from Organization import *
 from functions import generate_user_vector, knowledge_calculator
 
 
@@ -14,7 +13,7 @@ class User:
         self.p = p
         self.p_yn = self.p > random.random()
         self.knowledge = knowledge_calculator(self, organization)
-        self.token = tokens.pop()
+        self.token = tokens.pop(0)
         self.tokens_delegated = 0
         self.organization = organization
         self.voted = False
@@ -22,6 +21,9 @@ class User:
         self.changed = False
         self.vote_ctr = 0
         self.delegate_ctr = 0
+        self.whale = False
+        self.leader = False
+        self.influence = []
 
     def knowledge_calculator(self, organization):
         cnt = 0
@@ -29,7 +31,6 @@ class User:
             if self.vector[i] == organization.vector[i]:
                 cnt += 1
         self.knowledge = cnt/self.m
-        return self.knowledge
 
     def get_p_yn(self):
         return self.p > random.uniform(0, 1)
@@ -50,13 +51,11 @@ class User:
         cnt = 0
         idxs = list(range(self.m))
         idxs.pop(self.vote_on)
-
         chosen_idxs = random.sample(idxs, self.k)
 
         for idx in chosen_idxs:
             if self.vector[idx] == candidate.vector[idx]:
                 cnt += 1
-
         if self.k == cnt:
             return True
         else:
@@ -66,14 +65,16 @@ class User:
         self.vote_on = vote_on
         if self.delegated:
             return self.vote(vote_on)
+        elif self.whale:
+            return self.vote(vote_on)
+        elif self.leader:
+            return self.vote(vote_on)
         else:
-            search = random.sample(self.organization.users, round(
-                len(self.organization.users)*self.p))
+            search = random.sample(self.organization.users, round(len(self.organization.users)*self.p))
             if self in search:
                 search.remove(self)
 
             max_knowledge = 0
-
             for s in search:
                 if s.p_yn:
                     if self.check_interdependence(s):

@@ -1,5 +1,4 @@
 # Import libraries
-from attr import attr
 import numpy as np
 import random
 
@@ -26,7 +25,6 @@ class Organization:
     def initiate_vote_on(self, vote_on, users):
         self.users = users
         self.vote_on = vote_on
-
         vote_result = [0, 0]
 
         # re-initiate the values in every vote
@@ -39,16 +37,15 @@ class Organization:
             user.vote_ctr = 0
             user.delegate_ctr = 0
             self.changed = False
+            user.tokens_voted = 0
 
         for user in users:
             # Call vote function - here begins vote, search, and delegate
             result = user.search(vote_on)
-
-            if result == None:
-                pass
-            else:
+            if result != None:
                 vote_on_value, token = result
                 vote_result[vote_on_value] += token
+                user.tokens_voted = token
 
         if vote_result[0] > vote_result[1]:
             chosen_value = 0
@@ -58,30 +55,26 @@ class Organization:
         return vote_result, chosen_value
 
     def change_org_attr(self, chosen_value):
-        attr_val_before = self.vector[self.vote_on]
-        attr_val_after = chosen_value
-
-        per_bf = self.performance
-
-        if attr_val_before != attr_val_after:
+        current_value = self.vector[self.vote_on]
+        perf_before = self.performance
+        if current_value != chosen_value:
             self.changed = True
-            self.vector[self.vote_on] = attr_val_after
-
-        per_af = self.performance_calculator(self.reality)
-        return per_bf, per_af
+            self.vector[self.vote_on] = chosen_value
+        perf_after = self.performance_calculator(self.reality)
+        return perf_before, perf_after
 
     def change_usr_attr(self, chosen_value):
-        knos = []
+        knows = []
         # change User's attribute
         for user in self.users:
-            kno_bf = user.knowledge
+            know_before = user.knowledge
             if user.voted:
                 if user.vector[self.vote_on] != chosen_value:
                     user.vector[self.vote_on] = chosen_value
                     user.changed = True
-            kno_af = user.knowledge_calculator(self)
-            knos.append([kno_bf, kno_af])
-        return knos
+            know_after = user.knowledge_calculator(self)
+            knows.append([know_before, know_after])
+        return knows
 
     def show_vote_change(self, per_bf, per_af, knos):
         vote_on = self.vote_on
@@ -142,16 +135,26 @@ class Organization:
         return vote_ctr_sum, delegate_ctr_sum
 
     def participation_ctrs(self):
-        p_y_cnt = 0
+        p_cnt = 0
         for user in self.users:
             if user.voted:
-                p_y_cnt += 1
-        return p_y_cnt
+                p_cnt += 1
+        return p_cnt
 
     def avg_knowledge(self):
-        knowledge_sum = 0
+        know_sum = 0
         n = len(self.users)
         for user in self.users:
-            knowledge_sum += user.knowledge
-        know_avg = round(knowledge_sum/n, 4)
+            know_sum += user.knowledge
+        know_avg = round(know_sum/n, 4)
         return know_avg
+
+    def user_influence(self, vote_result, chosen_value):
+        user_influences = []
+        for user in self.users:
+            if user.vector[self.vote_on] == chosen_value:
+                user_influence = round(user.tokens_voted/sum(vote_result), 4)
+            else:
+                user_influence = 0
+            user_influences.append(user_influence)
+        return user_influences
