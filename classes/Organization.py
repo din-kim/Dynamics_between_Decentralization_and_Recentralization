@@ -1,22 +1,20 @@
 # Import libraries
-import numpy as np
-import random
-
-from functions import *
+from functions.others import *
 
 
 class Organization:
     def __init__(self, m, reality):
         self.m = m
+        self.reality = reality
         self.vector = generate_org_vector(reality)
         self.performance = performance_calculator(self, reality)
         self.reality = reality
         self.changed = False
 
-    def performance_calculator(self, reality):
+    def performance_calculator(self):
         cnt = 0
         for i in range(self.m):
-            if self.vector[i] == reality.vector[i]:
+            if self.vector[i] == self.reality.vector[i]:
                 cnt += 1
         # renew performance here
         self.performance = cnt/self.m
@@ -41,7 +39,7 @@ class Organization:
 
         for user in users:
             # Call vote function - here begins vote, search, and delegate
-            result = user.search(vote_on)
+            result = user.search(users, vote_on)
             if result != None:
                 vote_on_value, token = result
                 vote_result[vote_on_value] += token
@@ -51,36 +49,33 @@ class Organization:
             chosen_value = 0
         else:
             chosen_value = 1
-
         return vote_result, chosen_value
 
     def change_org_attr(self, chosen_value):
         current_value = self.vector[self.vote_on]
-        perf_before = self.performance
         if current_value != chosen_value:
             self.changed = True
             self.vector[self.vote_on] = chosen_value
-        perf_after = self.performance_calculator(self.reality)
+        perf_before = self.performance
+        perf_after = self.performance_calculator()
         return perf_before, perf_after
 
     def change_usr_attr(self, chosen_value):
-        knows = []
-        # change User's attribute
+        know_changes = []
         for user in self.users:
-            know_before = user.knowledge
             if user.voted:
                 if user.vector[self.vote_on] != chosen_value:
                     user.vector[self.vote_on] = chosen_value
                     user.changed = True
-            know_after = user.knowledge_calculator(self)
-            knows.append([know_before, know_after])
-        return knows
+            know_before = user.knowledge
+            know_after = user.knowledge_calculator()
+        know_changes.append([know_before, know_after])
+        return know_changes
 
-    def show_vote_change(self, per_bf, per_af, knos):
-        vote_on = self.vote_on
+    def show_vote_change(self, perf_bf, perf_af, know_changes):
         if self.changed:
             print("Organization changed.")
-            print("== Performance change: {} ===> {}".format(per_bf, per_af))
+            print("== Performance change: {} ===> {}".format(perf_bf, perf_af))
             print()
         else:
             print("Organization did not change.")
@@ -89,7 +84,7 @@ class Organization:
         for user in self.users:
             if user.changed:
                 print("== user#{} knowledge change: {} ===> {}".format(
-                    user.id, knos[user.id][0], knos[user.id][1]))
+                    user.id, know_changes[user.id][0], know_changes[user.id][1]))
         print("========================")
         print()
         print()
@@ -118,28 +113,26 @@ class Organization:
 
         print("========================")
 
-    def record_dele_cnts(self):
-        delegate_ctr_per_user = []
-        for user in self.users:
-            delegate_ctr_per_user.append([user.id, user.delegate_ctr])
-        return delegate_ctr_per_user
-
-    def vote_category_ctrs(self):
+    def vote_dele_ctrs(self):
         vote_ctr_sum = 0
-        delegate_ctr_sum = 0
-
+        dele_ctr_sum = 0
+        n_u = len(self.users)
         for user in self.users:
             vote_ctr_sum += user.vote_ctr
-            delegate_ctr_sum += user.delegate_ctr
+            dele_ctr_sum += user.delegate_ctr
 
-        return vote_ctr_sum, delegate_ctr_sum
+        vote_ratio = vote_ctr_sum/n_u
+        dele_ratio = dele_ctr_sum/n_u
+
+        return vote_ratio, dele_ratio
 
     def participation_ctrs(self):
         p_cnt = 0
+        n_u = len(self.users)
         for user in self.users:
             if user.voted:
                 p_cnt += 1
-        return p_cnt
+        return p_cnt/n_u
 
     def avg_knowledge(self):
         know_sum = 0

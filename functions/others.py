@@ -51,18 +51,18 @@ def generate_org_vector(reality):
 def generate_leader_vector(reality):
     m = len(reality.vector)
     nums = list(range(m))
-    random_perf = random.uniform(0, 1)
+    random_perf = random.uniform(0.5, 1)
     idxs = random.sample(nums, int(np.floor(random_perf*m)))
-    user_vector = [None] * m
+    leader_vector = [None] * m
 
     # match values between user and reality as random knowledge value
     for idx in idxs:
-        user_vector[idx] = reality.vector[idx]
+        leader_vector[idx] = reality.vector[idx]
     # then unmatch the rest values
     for i in range(m):
-        if user_vector[i] == None:
-            user_vector[i] = int(not(reality.vector[i]))
-    return user_vector
+        if leader_vector[i] == None:
+            leader_vector[i] = int(not(reality.vector[i]))
+    return leader_vector
 
 
 """
@@ -123,7 +123,8 @@ def distribute_tokens(n, t, dr):
 """
 (4) Generate a vote list
 - Sampling random voting targets from the number of m. NO repeatition.
-- Sampling leader's voting targets from 
+- Sampling leader's voting targets from leaders randomly chosen. 
+  They decide what to vote only if more than half of the leaders share the same attribute values.
 """
 
 
@@ -159,43 +160,10 @@ def generate_leaders_vote_list(leaders, m, v):
 
 
 """
-(5) Vote handler
-- Sampling random voting targets from the number of m. NO repeatition.
+(5) Mean results
+- mean result: mean results of votes, delegations, knowledges, performances and participations
+- mean influencers: mean results of influencer counts 
 """
-
-
-def vote_handler(reality, organization, users, vote_list):
-    vote_ctr_sum_list = []
-    dele_ctr_sum_list = []
-    part_list = []
-    know_list = []
-    perf_list = []
-    infl_list = []
-
-    for vote_target in vote_list:
-        vote_result, chosen_value = organization.initiate_vote_on(
-            vote_target, users)
-
-        infl = organization.user_influence(vote_result, chosen_value)
-        infl_list.append(infl)
-
-        perf_before, perf_after = organization.change_org_attr(chosen_value)
-        knows = organization.change_usr_attr(chosen_value)
-
-        vot_ctr_sum, dele_ctr_sum = organization.vote_category_ctrs()
-        vote_ctr_sum_list.append(vot_ctr_sum)
-        dele_ctr_sum_list.append(dele_ctr_sum)
-
-        part = organization.participation_ctrs()
-        part_list.append(part)
-
-        know = organization.avg_knowledge()
-        know_list.append(know)
-
-        perf = organization.performance_calculator(reality)
-        perf_list.append(perf)
-
-    return vote_ctr_sum_list, dele_ctr_sum_list, part_list, know_list, perf_list, infl_list
 
 
 def mean_result(var):
@@ -215,11 +183,9 @@ def mean_result(var):
 
 def mean_influencers(var, rds, v, c_index):
     n_o = len(var)
-    n_u = len(var[0][0])
-
-    org_ratios = []
+    org_cnts = []
     for i in range(n_o):
-        ratios = []
+        rd_cnts = []
         for j in range(rds):
             for k in range(v):
                 cnts = 0
@@ -227,10 +193,9 @@ def mean_influencers(var, rds, v, c_index):
                 for inf in infs:
                     if inf >= c_index:
                         cnts += 1
-                ratio = cnts / n_u
-                ratios.append(ratio)
-        org_ratios.append(ratios)
-    res = np.array(org_ratios)
+                rd_cnts.append(cnts)
+        org_cnts.append(rd_cnts)
+    res = np.array(org_cnts)
     tmp = res[0]
     for i in range(1, n_o):
         tmp += res[i]
@@ -248,43 +213,45 @@ def plot_vote_dele_result(vote_res, dele_res):
     plt.plot(vote_res, label='Vote', color='tab:orange',
              marker='o', ls='dotted')
     plt.plot(dele_res, label='Delegate',
-             color='tab:blue', marker='o', ls='dotted')
-    plt.xlabel('votes/rounds')
-    plt.ylabel('counts')
+             color='tab:blue',  ls='dotted')
+    plt.xlabel('Rounds')
+    plt.ylabel('Counts')
+    plt.ylim(0, 1.1)
     plt.grid(axis='x', alpha=0.5, ls=':')
     plt.legend(loc='upper left')
 
 
 def plot_know_perf_result(know_res, perf_res):
     plt.figure(figsize=(12, 6))
-    plt.plot(know_res, label='Knowledge', color='red', marker='*', ls='--')
+    plt.plot(know_res, label='Knowledge', color='red', ls='--')
     plt.plot(perf_res, label='Performance',
              color='green', marker='*', ls='--')
-    plt.xlabel('votes/rounds')
-    plt.ylabel('counts')
+    plt.xlabel('Rounds')
+    plt.ylabel('Counts')
+    plt.ylim(0, 1)
     plt.grid(axis='x', alpha=0.5, ls=':')
     plt.legend(loc='upper left')
 
 
-def plot_part_res(res, n):
+def plot_part_res(res):
     plt.figure(figsize=(12, 6))
     plt.plot(res, label='Participation Rate',
-             color='purple', marker='o')
+             color='purple')
     plt.title('Participation')
-    plt.xlabel('votes')
-    plt.ylabel('counts')
-    plt.ylim(0, n)
+    plt.xlabel('Rounds')
+    plt.ylabel('Rate')
+    plt.ylim(0, 1.1)
     plt.grid(axis='x', alpha=0.5, ls=':')
     plt.legend(loc='upper left')
 
 
-def plot_infl_res(res, n):
+def plot_infl_res(res):
     plt.figure(figsize=(12, 6))
-    plt.plot(res, label='Influencer Ratio',
-             color='grey', marker='o')
+    plt.plot(res, label='Influencer Rate',
+             color='grey', marker='dotted')
     plt.title('Participation')
-    plt.xlabel('votes')
-    plt.ylabel('Ratio')
+    plt.xlabel('Rounds')
+    plt.ylabel('Rate')
     plt.ylim(0, 0.5)
     plt.grid(axis='x', alpha=0.5, ls=':')
     plt.legend(loc='upper left')
