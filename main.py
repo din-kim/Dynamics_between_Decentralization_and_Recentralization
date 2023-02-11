@@ -35,7 +35,7 @@ n_u = 100
 n_o = 50
 n_l = 0
 k = 10
-p = 0.5  # random.uniform(0,1)
+p = random.uniform(0, 1)
 t = 10000
 dr = 1
 n_l = 0
@@ -61,12 +61,11 @@ if __name__ == "__main__":
     mean_knows = mean_result(knowledges)
     mean_perfs = mean_result(performances)
     mean_parts = mean_result(participations)
-    mean_infls = mean_result(influencers)
+    mean_infls = mean_influencers(influencers, n_o, rds, v, c_index=0.05)
 
     # Plot Results
-    plot_vote_dele_result(mean_votes, mean_deles)
+    plot_vote_dele_result(mean_votes, mean_deles, n_u)
     plot_know_perf_result(mean_knows, mean_perfs)
-    plot_part_res(mean_parts)
     plot_infl_res(mean_infls)
 
-# %%
+ # %%

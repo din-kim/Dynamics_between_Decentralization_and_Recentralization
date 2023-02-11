@@ -181,8 +181,7 @@ def mean_result(var):
     return res
 
 
-def mean_influencers(var, rds, v, c_index):
-    n_o = len(var)
+def mean_influencers(var, n_o, rds, v, c_index):
     org_cnts = []
     for i in range(n_o):
         rd_cnts = []
@@ -208,24 +207,22 @@ def mean_influencers(var, rds, v, c_index):
 """
 
 
-def plot_vote_dele_result(vote_res, dele_res):
+def plot_vote_dele_result(vote_res, dele_res, n_u):
     plt.figure(figsize=(12, 6))
-    plt.plot(vote_res, label='Vote', color='tab:orange',
-             marker='o', ls='dotted')
-    plt.plot(dele_res, label='Delegate',
-             color='tab:blue',  ls='dotted')
+    plt.plot(vote_res, label='Vote', color='black', ls="--")
+    plt.plot(dele_res, label='Delegate', color='black')
     plt.xlabel('Rounds')
     plt.ylabel('Counts')
-    plt.ylim(0, 1.1)
+    plt.ylim(0, n_u)
     plt.grid(axis='x', alpha=0.5, ls=':')
     plt.legend(loc='upper left')
 
 
 def plot_know_perf_result(know_res, perf_res):
     plt.figure(figsize=(12, 6))
-    plt.plot(know_res, label='Knowledge', color='red', ls='--')
+    plt.plot(know_res, label='Knowledge', color='black')
     plt.plot(perf_res, label='Performance',
-             color='green', marker='*', ls='--')
+             color='black', ls='dotted')
     plt.xlabel('Rounds')
     plt.ylabel('Counts')
     plt.ylim(0, 1)
@@ -233,25 +230,23 @@ def plot_know_perf_result(know_res, perf_res):
     plt.legend(loc='upper left')
 
 
-def plot_part_res(res):
+def plot_part_res(res, n_u):
     plt.figure(figsize=(12, 6))
-    plt.plot(res, label='Participation Rate',
-             color='purple')
+    plt.plot(res, label='Participation Rate', color='black')
     plt.title('Participation')
     plt.xlabel('Rounds')
     plt.ylabel('Rate')
-    plt.ylim(0, 1.1)
+    plt.ylim(0, n_u+5)
     plt.grid(axis='x', alpha=0.5, ls=':')
     plt.legend(loc='upper left')
 
 
 def plot_infl_res(res):
     plt.figure(figsize=(12, 6))
-    plt.plot(res, label='Influencer Rate',
-             color='grey', marker='dotted')
+    plt.plot(res, label='Influencers', color='black')
     plt.title('Participation')
     plt.xlabel('Rounds')
-    plt.ylabel('Rate')
-    plt.ylim(0, 0.5)
+    plt.ylabel('Counts')
+    plt.ylim(0, 10)
     plt.grid(axis='x', alpha=0.5, ls=':')
     plt.legend(loc='upper left')

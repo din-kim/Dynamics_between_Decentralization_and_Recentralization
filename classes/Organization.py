@@ -116,23 +116,18 @@ class Organization:
     def vote_dele_ctrs(self):
         vote_ctr_sum = 0
         dele_ctr_sum = 0
-        n_u = len(self.users)
         for user in self.users:
             vote_ctr_sum += user.vote_ctr
             dele_ctr_sum += user.delegate_ctr
 
-        vote_ratio = vote_ctr_sum/n_u
-        dele_ratio = dele_ctr_sum/n_u
-
-        return vote_ratio, dele_ratio
+        return vote_ctr_sum, dele_ctr_sum
 
     def participation_ctrs(self):
         p_cnt = 0
-        n_u = len(self.users)
         for user in self.users:
             if user.voted:
                 p_cnt += 1
-        return p_cnt/n_u
+        return p_cnt
 
     def avg_knowledge(self):
         know_sum = 0
