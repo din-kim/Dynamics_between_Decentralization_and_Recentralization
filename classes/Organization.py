@@ -7,11 +7,11 @@ class Organization:
         self.m = m
         self.reality = reality
         self.vector = generate_org_vector(reality)
-        self.performance = performance_calculator(self, reality)
+        self.performance = get_performance(self, reality)
         self.reality = reality
         self.changed = False
 
-    def performance_calculator(self):
+    def get_performance(self):
         cnt = 0
         for i in range(self.m):
             if self.vector[i] == self.reality.vector[i]:
@@ -31,11 +31,11 @@ class Organization:
             user.voted = False
             user.delegated = False
             user.tokens_delegated = 0
+            user.total_tokens = 0
             user.changed = False
             user.vote_ctr = 0
             user.delegate_ctr = 0
             self.changed = False
-            user.tokens_voted = 0
 
         for user in users:
             # Call vote function - here begins vote, search, and delegate
@@ -43,7 +43,6 @@ class Organization:
             if result != None:
                 vote_on_value, token = result
                 vote_result[vote_on_value] += token
-                user.tokens_voted = token
 
         if vote_result[0] > vote_result[1]:
             chosen_value = 0
@@ -57,7 +56,7 @@ class Organization:
             self.changed = True
             self.vector[self.vote_on] = chosen_value
         perf_before = self.performance
-        perf_after = self.performance_calculator()
+        perf_after = self.get_performance()
         return perf_before, perf_after
 
     def change_usr_attr(self, chosen_value):
@@ -68,7 +67,7 @@ class Organization:
                     user.vector[self.vote_on] = chosen_value
                     user.changed = True
             know_before = user.knowledge
-            know_after = user.knowledge_calculator()
+            know_after = user.get_knowledge()
         know_changes.append([know_before, know_after])
         return know_changes
 
@@ -113,7 +112,7 @@ class Organization:
 
         print("========================")
 
-    def vote_dele_ctrs(self):
+    def get_vote_ctrs(self):
         vote_ctr_sum = 0
         dele_ctr_sum = 0
         for user in self.users:
@@ -122,14 +121,14 @@ class Organization:
 
         return vote_ctr_sum, dele_ctr_sum
 
-    def participation_ctrs(self):
+    def get_participation_ctrs(self):
         p_cnt = 0
         for user in self.users:
             if user.voted:
                 p_cnt += 1
         return p_cnt
 
-    def avg_knowledge(self):
+    def get_org_knowledge(self):
         know_sum = 0
         n = len(self.users)
         for user in self.users:
@@ -137,12 +136,23 @@ class Organization:
         know_avg = round(know_sum/n, 4)
         return know_avg
 
-    def user_influence(self, vote_result, chosen_value):
+    def get_user_influence(self, vote_result, chosen_value):
         user_influences = []
         for user in self.users:
             if user.vector[self.vote_on] == chosen_value:
-                user_influence = round(user.tokens_voted/sum(vote_result), 4)
+                user_influence = round(user.total_tokens/sum(vote_result), 4)
             else:
                 user_influence = 0
             user_influences.append(user_influence)
         return user_influences
+
+    def get_gini_coefficient(self, users):
+        tkns_list = []
+        for user in users:
+            tkns_list.append(user.total_tokens)
+        x = np.array(tkns_list)
+        x.sort()
+        total = 0
+        for i, xi in enumerate(x[:-1], 1):
+            total += np.sum(np.abs(xi-x[i:]))
+        return total/(len(x)**2 * np.mean(x))

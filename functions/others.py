@@ -8,10 +8,18 @@ import matplotlib.pyplot as plt
 
 """
 (1) Generate random vectors
-- Generate vectors based on the uniform distribution. 
+- Generate vectors based on the uniform distribution.
 - After having knowledge/performance value first, then match user or organization's attribute value according to the value assigned
 - so that we prevent the situation where the most of user/organization have its knowledge/performance of very near to 0.5.
 """
+
+
+def get_vote_method(l):
+    if l > 0:
+        method = "leader"
+    else:
+        method = "random"
+    return method
 
 
 def generate_user_vector(organization):
@@ -73,7 +81,7 @@ def generate_leader_vector(reality):
 """
 
 
-def performance_calculator(organization, reality):
+def get_performance(organization, reality):
     cnt = 0
     for i in range(organization.m):
         if reality.vector[i] == organization.vector[i]:
@@ -82,7 +90,7 @@ def performance_calculator(organization, reality):
     return performance
 
 
-def knowledge_calculator(user, organization):
+def get_knowledge(user, organization):
     cnt = 0
     for i in range(user.m):
         if user.vector[i] == organization.vector[i]:
@@ -91,7 +99,7 @@ def knowledge_calculator(user, organization):
     return knowledge
 
 
-def whale_calculator(n, dr):
+def calculate_whales(n, dr):
     if dr != 1:
         whale_number = int(n*dr)
     else:
@@ -100,9 +108,9 @@ def whale_calculator(n, dr):
 
 
 """
-(3) Distributing tokens 
+(3) Distributing tokens
 - This function draws a random number in an uniform distribution.
-- If dr(distribution rate) does not equals to 1, two groups of users hold different amount of tokens. 
+- If dr(distribution rate) does not equals to 1, two groups of users hold different amount of tokens.
 - 'dr' decides the size of the first group and that group owns (1-dr) tokens.
 - '1-dr' of the remaining group owns the rest tokens(dr).
 - Example) if dr=0.2, 20% of users owns 80% of tokens and the remaining 80% of users owns 20% of tokens.
@@ -110,6 +118,8 @@ def whale_calculator(n, dr):
 
 
 def distribute_tokens(n, t, dr):
+    if dr == 0:
+        return [int(t/n)] * n
     if n*dr < 1:
         raise Exception("ValueError: n*dr should be larger than 1.")
     elif dr == 1:
@@ -123,7 +133,7 @@ def distribute_tokens(n, t, dr):
 """
 (4) Generate a vote list
 - Sampling random voting targets from the number of m. NO repeatition.
-- Sampling leader's voting targets from leaders randomly chosen. 
+- Sampling leader's voting targets from leaders randomly chosen.
   They decide what to vote only if more than half of the leaders share the same attribute values.
 """
 
@@ -139,21 +149,23 @@ def generate_leaders_vote_list(leaders, m, v):
     confirmed_targets = []
 
     while len(confirmed_targets) <= v:
+        leaders = random.sample(leaders, n_l)
         target = random.randint(0, m-1)
         cnt = 0
         tmp = leaders[0].vector[target]
 
-        while cnt <= n_l:
+        while cnt <= n_l//2:
             for leader in leaders:
                 if tmp == leader.vector[target]:
                     cnt += 1
                     rounds += 1
-            if cnt == n_l//2:
-                confirmed_targets.append(target)
-                if len(confirmed_targets) == v:
-                    return confirmed_targets
-                break
-            elif cnt < n_l:
+
+                if cnt == n_l//2:
+                    confirmed_targets.append(target)
+                    if len(confirmed_targets) == v:
+                        return confirmed_targets
+                    break
+            if cnt < n_l:
                 break
         if rounds > 300:
             return confirmed_targets
@@ -162,7 +174,7 @@ def generate_leaders_vote_list(leaders, m, v):
 """
 (5) Mean results
 - mean result: mean results of votes, delegations, knowledges, performances and participations
-- mean influencers: mean results of influencer counts 
+- mean influencers: mean results of influencer counts
 """
 
 
@@ -232,8 +244,7 @@ def plot_know_perf_result(know_res, perf_res):
 
 def plot_part_res(res, n_u):
     plt.figure(figsize=(12, 6))
-    plt.plot(res, label='Participation Rate', color='black')
-    plt.title('Participation')
+    plt.plot(res, label='Participation', color='black')
     plt.xlabel('Rounds')
     plt.ylabel('Rate')
     plt.ylim(0, n_u+5)
@@ -244,9 +255,18 @@ def plot_part_res(res, n_u):
 def plot_infl_res(res):
     plt.figure(figsize=(12, 6))
     plt.plot(res, label='Influencers', color='black')
-    plt.title('Participation')
     plt.xlabel('Rounds')
     plt.ylabel('Counts')
     plt.ylim(0, 10)
+    plt.grid(axis='x', alpha=0.5, ls=':')
+    plt.legend(loc='upper left')
+
+
+def plot_gini_res(res):
+    plt.figure(figsize=(12, 6))
+    plt.plot(res, label='Gini Coefficient', color='black')
+    plt.xlabel('Rounds')
+    plt.ylabel('Counts')
+    plt.ylim(0, 1)
     plt.grid(axis='x', alpha=0.5, ls=':')
     plt.legend(loc='upper left')

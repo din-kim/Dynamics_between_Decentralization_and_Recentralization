@@ -24,26 +24,27 @@ def generate_users(reality, organizations, n_u, n_l, m, k, p, t, dr):
     for organization in organizations:
         tokens = list(distribute_tokens(n_u, t, dr))
         ids = list(range(n_u))
-        whale_number = whale_calculator(n_u, dr)
+        whale_number = calculate_whales(n_u, dr)
         users = []
         leaders = []
         if n_l == 0:
-            for i in range(n_u):
+            for _ in range(n_u):
                 users.append(User(reality, organization, m, k, p, ids, tokens))
         else:
-            for i in range(n_u):
+            for _ in range(n_u):
                 users.append(User(reality, organization, m, k, p, ids, tokens))
 
-            for j in range(n_u-n_l, n_u):
-                leaders.append(users[j])
-                users[j].leader = True
-                users[j].p = 1
-                users[j].vector = generate_leader_vector(reality)
-                users[j].performance_calculator(reality)
-                users[j].knowledge_calculator(organization)
+            for i in range(n_u-n_l, n_u):
+                leaders.append(users[i])
+                users[i].leader = True
+                users[i].p = 1
+                users[i].vector = generate_leader_vector(reality)
+                users[i].get_performance()
+                users[i].get_knowledge()
 
-        for k in range(whale_number):
-            users[k].whale = True
+        for j in range(whale_number):
+            users[j].whale = True
+
         users_list.append(users)
         leaders_list.append(leaders)
     return users_list, leaders_list
