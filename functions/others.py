@@ -2,9 +2,10 @@
 import numpy as np
 import random
 import matplotlib.pyplot as plt
-
+from itertools import product
 
 # FUNCTIONS
+
 
 """
 (1) Generate random vectors
@@ -12,14 +13,6 @@ import matplotlib.pyplot as plt
 - After having knowledge/performance value first, then match user or organization's attribute value according to the value assigned
 - so that we prevent the situation where the most of user/organization have its knowledge/performance of very near to 0.5.
 """
-
-
-def get_vote_method(l):
-    if l > 0:
-        method = "leader"
-    else:
-        method = "random"
-    return method
 
 
 def generate_user_vector(organization):
@@ -219,7 +212,7 @@ def mean_influencers(var, n_o, rds, v, c_index):
 """
 
 
-def plot_vote_dele_result(vote_res, dele_res, n_u):
+def plot_vote_dele_result(vote_res, dele_res, n_u, dr, n_l, p, k):
     plt.figure(figsize=(12, 6))
     plt.plot(vote_res, label='Vote', color='black', ls="--")
     plt.plot(dele_res, label='Delegate', color='black')
@@ -228,9 +221,11 @@ def plot_vote_dele_result(vote_res, dele_res, n_u):
     plt.ylim(0, n_u)
     plt.grid(axis='x', alpha=0.5, ls=':')
     plt.legend(loc='upper left')
+    plt.savefig("images/vote_dele__dr:{dr}_n_l:{n_l}_p:{p}_k:{k}.png".format(
+        dr=dr, n_l=n_l, p=p, k=k))
 
 
-def plot_know_perf_result(know_res, perf_res):
+def plot_know_perf_result(know_res, perf_res, dr, n_l, p, k):
     plt.figure(figsize=(12, 6))
     plt.plot(know_res, label='Knowledge', color='black')
     plt.plot(perf_res, label='Performance',
@@ -240,9 +235,11 @@ def plot_know_perf_result(know_res, perf_res):
     plt.ylim(0, 1)
     plt.grid(axis='x', alpha=0.5, ls=':')
     plt.legend(loc='upper left')
+    plt.savefig("images/know_perf__dr:{dr}_n_l:{n_l}_p:{p}_k:{k}.png".format(
+        dr=dr, n_l=n_l, p=p, k=k))
 
 
-def plot_part_res(res, n_u):
+def plot_part_res(res, n_u, dr, n_l, p, k):
     plt.figure(figsize=(12, 6))
     plt.plot(res, label='Participation', color='black')
     plt.xlabel('Rounds')
@@ -250,9 +247,11 @@ def plot_part_res(res, n_u):
     plt.ylim(0, n_u+5)
     plt.grid(axis='x', alpha=0.5, ls=':')
     plt.legend(loc='upper left')
+    plt.savefig("images/part_res__dr:{dr}_n_l:{n_l}_p:{p}_k:{k}.png".format(
+        dr=dr, n_l=n_l, p=p, k=k))
 
 
-def plot_infl_res(res):
+def plot_infl_res(res, dr, n_l, p, k):
     plt.figure(figsize=(12, 6))
     plt.plot(res, label='Influencers', color='black')
     plt.xlabel('Rounds')
@@ -260,9 +259,11 @@ def plot_infl_res(res):
     plt.ylim(0, 10)
     plt.grid(axis='x', alpha=0.5, ls=':')
     plt.legend(loc='upper left')
+    plt.savefig("images/infl_res__dr:{dr}_n_l:{n_l}_p:{p}_k:{k}.png".format(
+        dr=dr, n_l=n_l, p=p, k=k))
 
 
-def plot_gini_res(res):
+def plot_gini_res(res, dr, n_l, p, k):
     plt.figure(figsize=(12, 6))
     plt.plot(res, label='Gini Coefficient', color='black')
     plt.xlabel('Rounds')
@@ -270,3 +271,25 @@ def plot_gini_res(res):
     plt.ylim(0, 1)
     plt.grid(axis='x', alpha=0.5, ls=':')
     plt.legend(loc='upper left')
+    plt.savefig("images/gini_res__dr:{dr}_n_l:{n_l}_p:{p}_k:{k}.png".format(
+        dr=dr, n_l=n_l, p=p, k=k))
+
+
+"""
+(7) Others
+- Generate paramter grids
+- Get vote method 
+"""
+
+
+def param_grid(params):
+    for vcomb in product(*params.values()):
+        yield dict(zip(params.keys(), vcomb))
+
+
+def get_vote_method(l):
+    if l > 0:
+        method = "leader"
+    else:
+        method = "random"
+    return method

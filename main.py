@@ -26,21 +26,52 @@ Variables
 - p : participation rate
 - t : total number of tokens
 - dr: distribution rate of tokens
+
+
+
 """
 # Setting Variables
-rds = 80
-v = 10
-m = 100
-n_u = 100
-n_o = 50
-k = 10
-p = 0.2  # random.uniform(0, 1)
-t = 10000
-dr = 1
-n_l = 0
-method = get_vote_method(n_l)
 
-if __name__ == "__main__":
+params = {
+    'n_l': [0, 10],
+    'dr': [1, 0.2],
+    'p': [1, 0.5, 0.2],
+    'k': [0, 5, 10],
+    'rds': [80],
+    'v': [10],
+    'm': [100],
+    'n_u': [100],
+    'n_o': [50],
+    't': [10000],
+}
+
+for config in param_grid(params):
+    rds = config.get('rds')
+    v = config.get('v')
+    m = config.get('m')
+    t = config.get('t')
+    n_u = config.get('n_u')
+    n_o = config.get('n_o')
+    n_l = config.get('n_l')
+    dr = config.get('dr')
+    k = config.get('k')
+    p = config.get('p')
+
+    """
+    if __name__ == "__main__":
+        rds = 80
+        v = 10
+        m = 100
+        n_u = 100
+        n_o = 50
+        k = 0
+        t = 10000
+        p = 0.2
+        dr = 0.2
+        n_l = 10
+    """
+    method = get_vote_method(n_l)
+
     # Initiate Reality
     reality = generate_reality(m)
 
@@ -65,10 +96,10 @@ if __name__ == "__main__":
     mean_infls = mean_influencers(influencers, n_o, rds, v, c_index=0.05)
 
     # Plot Results
-    plot_vote_dele_result(mean_votes, mean_deles, n_u)
-    plot_know_perf_result(mean_knows, mean_perfs)
-    plot_part_res(mean_parts, n_u)
-    plot_gini_res(mean_ginis)
-    plot_infl_res(mean_infls)
+    plot_vote_dele_result(mean_votes, mean_deles, n_u, dr, n_l, p, k)
+    plot_know_perf_result(mean_knows, mean_perfs, dr, n_l, p, k)
+    plot_part_res(mean_parts, n_u, dr, n_l, p, k)
+    plot_gini_res(mean_ginis, dr, n_l, p, k)
+    plot_infl_res(mean_infls, dr, n_l, p, k)
 
-# %%
+   # %%
