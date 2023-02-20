@@ -39,7 +39,7 @@ class Organization:
 
         for user in users:
             # Call vote function - here begins vote, search, and delegate
-            result = user.search(users, vote_on)
+            result = user.vote(vote_on)
             if result != None:
                 vote_on_value, token = result
                 vote_result[vote_on_value] += token
