@@ -221,7 +221,7 @@ def plot_vote_dele_result(vote_res, dele_res, n_u, dr, n_l, p, k):
     plt.ylim(0, n_u)
     plt.grid(axis='x', alpha=0.5, ls=':')
     plt.legend(loc='upper left')
-    plt.savefig("images/dr:{dr}_n_l:{n_l}_p:{p}_k:{k}__vote_dele.png".format(
+    plt.savefig("images/dr({dr})_n_l({n_l})_p({p})_k({k})__vote_dele.png".format(
         dr=dr, n_l=n_l, p=p, k=k))
 
 
@@ -235,7 +235,7 @@ def plot_know_perf_result(know_res, perf_res, dr, n_l, p, k):
     plt.ylim(0, 1)
     plt.grid(axis='x', alpha=0.5, ls=':')
     plt.legend(loc='upper left')
-    plt.savefig("images/dr:{dr}_n_l:{n_l}_p:{p}_k:{k}__know_perf.png".format(
+    plt.savefig("images/dr({dr})_n_l({n_l})_p({p})_k({k})__know_perf.png".format(
         dr=dr, n_l=n_l, p=p, k=k))
 
 
@@ -247,7 +247,7 @@ def plot_part_res(res, n_u, dr, n_l, p, k):
     plt.ylim(0, n_u+5)
     plt.grid(axis='x', alpha=0.5, ls=':')
     plt.legend(loc='upper left')
-    plt.savefig("images/dr:{dr}_n_l:{n_l}_p:{p}_k:{k}__part_res.png".format(
+    plt.savefig("images/dr({dr})_n_l({n_l})_p({p})_k({k})__part_res.png".format(
         dr=dr, n_l=n_l, p=p, k=k))
 
 
@@ -259,7 +259,7 @@ def plot_infl_res(res, dr, n_l, p, k):
     plt.ylim(0, 10)
     plt.grid(axis='x', alpha=0.5, ls=':')
     plt.legend(loc='upper left')
-    plt.savefig("images/dr:{dr}_n_l:{n_l}_p:{p}_k:{k}__infl_res.png".format(
+    plt.savefig("images/dr({dr})_n_l({n_l})_p({p})_k({k})__infl_res.png".format(
         dr=dr, n_l=n_l, p=p, k=k))
 
 
@@ -271,7 +271,7 @@ def plot_gini_res(res, dr, n_l, p, k):
     plt.ylim(0, 1)
     plt.grid(axis='x', alpha=0.5, ls=':')
     plt.legend(loc='upper left')
-    plt.savefig("images/dr:{dr}_n_l:{n_l}_p:{p}_k:{k}__gini_res.png".format(
+    plt.savefig("images/dr({dr})_n_l({n_l})_p({p})_k({k})__gini_res.png".format(
         dr=dr, n_l=n_l, p=p, k=k))
 
 

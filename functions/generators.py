@@ -42,7 +42,7 @@ def generate_users(reality, organizations, n_u, n_l, m, k, p, t, dr):
                 users[i].get_performance()
                 users[i].get_knowledge()
 
-        for j in range(whale_number):
+        for j in range(whale_number):  # range(n_u-whale_number, n_u)
             users[j].whale = True
 
         users_list.append(users)
