@@ -60,57 +60,16 @@ class Organization:
         return perf_before, perf_after
 
     def change_usr_attr(self, chosen_value):
-        know_changes = []
+        perf_changes = []
         for user in self.users:
             if user.voted:
                 if user.vector[self.vote_on] != chosen_value:
                     user.vector[self.vote_on] = chosen_value
                     user.changed = True
-            know_before = user.knowledge
-            know_after = user.get_knowledge()
-        know_changes.append([know_before, know_after])
-        return know_changes
-
-    def show_vote_change(self, perf_bf, perf_af, know_changes):
-        if self.changed:
-            print("Organization changed.")
-            print("== Performance change: {} ===> {}".format(perf_bf, perf_af))
-            print()
-        else:
-            print("Organization did not change.")
-
-        print("Check if user(s) changed.")
-        for user in self.users:
-            if user.changed:
-                print("== user#{} knowledge change: {} ===> {}".format(
-                    user.id, know_changes[user.id][0], know_changes[user.id][1]))
-        print("========================")
-        print()
-        print()
-        print("SESSION END")
-        print()
-        print()
-
-    def show_vote_result(self, vote_result):
-        total_vote_cnts = 0
-        for user in self.users:
-            if user.voted:
-                total_vote_cnts += 1
-
-        self.total_vote_cnts = total_vote_cnts
-        n = len(self.users)
-
-        print("Total Voters: {}".format(n))
-        print("== Vote: {}".format(total_vote_cnts))
-        print("== No Vote: {}".format(n-total_vote_cnts))
-        print()
-
-        print("Voting Result")
-        print("Value: 0: {}".format(vote_result[0]))
-        print("Value: 1: {}".format(vote_result[1]))
-        print()
-
-        print("========================")
+            perf_before = user.performance
+            perf_after = user.get_performance()
+        perf_changes.append([perf_before, perf_after])
+        return perf_changes
 
     def get_vote_ctrs(self):
         vote_ctr_sum = 0
@@ -128,19 +87,23 @@ class Organization:
                 p_cnt += 1
         return p_cnt
 
-    def get_org_knowledge(self):
-        know_sum = 0
+    def get_org_performance(self):
+        perf_sum = 0
         n = len(self.users)
         for user in self.users:
-            know_sum += user.knowledge
-        know_avg = round(know_sum/n, 4)
-        return know_avg
+            perf_sum += user.performance
+        perf_avg = round(perf_sum/n, 4)
+        return perf_avg
 
     def get_user_influence(self, vote_result, chosen_value):
         user_influences = []
         for user in self.users:
             if user.vector[self.vote_on] == chosen_value:
-                user_influence = round(user.total_tokens/sum(vote_result), 4)
+                if sum(vote_result) == 0:
+                    user_influence = 0
+                else:
+                    user_influence = round(
+                        user.total_tokens/sum(vote_result), 4)
             else:
                 user_influence = 0
             user_influences.append(user_influence)

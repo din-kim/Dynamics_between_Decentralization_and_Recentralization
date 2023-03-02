@@ -18,11 +18,11 @@ from itertools import product
 def generate_user_vector(organization):
     m = len(organization.vector)
     nums = list(range(m))
-    random_know = random.uniform(0, 1)
-    idxs = random.sample(nums, int(np.floor(random_know*m)))
+    random_perf = random.uniform(0, 1)
+    idxs = random.sample(nums, int(np.floor(random_perf*m)))
     user_vector = [None] * m
 
-    # match values between user and organization as random knowledge value
+    # match values between user and organization as random performance value
     for idx in idxs:
         user_vector[idx] = organization.vector[idx]
     # then unmatch the rest values
@@ -81,15 +81,6 @@ def get_performance(organization, reality):
             cnt += 1
     performance = cnt/organization.m
     return performance
-
-
-def get_knowledge(user, organization):
-    cnt = 0
-    for i in range(user.m):
-        if user.vector[i] == organization.vector[i]:
-            cnt += 1
-    knowledge = cnt/organization.m
-    return knowledge
 
 
 def calculate_whales(n, dr):
@@ -225,9 +216,8 @@ def plot_vote_dele_result(vote_res, dele_res, n_u, dr, n_l, p, k):
         dr=dr, n_l=n_l, p=p, k=k))
 
 
-def plot_know_perf_result(know_res, perf_res, dr, n_l, p, k):
+def plot_perf_result(perf_res, dr, n_l, p, k):
     plt.figure(figsize=(12, 6))
-    plt.plot(know_res, label='Knowledge', color='black')
     plt.plot(perf_res, label='Performance',
              color='black', ls='dotted')
     plt.xlabel('Rounds')

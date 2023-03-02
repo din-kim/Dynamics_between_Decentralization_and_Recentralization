@@ -10,7 +10,6 @@ class User:
         self.vector = generate_user_vector(organization)
         self.p = p
         self.p_yn = self.p > random.random()
-        self.knowledge = get_knowledge(self, organization)
         self.performance = get_performance(self, organization)
         self.token = tokens.pop(0)
         self.tokens_delegated = 0
@@ -32,14 +31,6 @@ class User:
                 cnt += 1
         self.performance = cnt/self.m
         return self.performance
-
-    def get_knowledge(self):
-        cnt = 0
-        for i in range(self.m):
-            if self.vector[i] == self.organization.vector[i]:
-                cnt += 1
-        self.knowledge = cnt/self.m
-        return self.knowledge
 
     def get_p_yn(self):
         return self.p > random.uniform(0, 1)
@@ -85,18 +76,18 @@ class User:
             if self in search:
                 search.remove(self)
 
-            max_knowledge = 0
+            max_performance = 0
             for s in search:
                 if s.p_yn:
                     if self.check_interdependence(s):
-                        if s.knowledge > max_knowledge:
-                            max_knowledge = s.knowledge
+                        if s.performance > max_performance:
+                            max_performance = s.performance
                             max_idx = s.id
 
-            if self.knowledge < max_knowledge:
+            if self.performance < max_performance:
                 delegatee = users[max_idx]
                 return self.delegate(delegatee)
-            elif self.knowledge >= max_knowledge:
+            elif self.performance >= max_performance:
                 if self.p_yn:
                     return self.vote(vote_on)
                 else:
