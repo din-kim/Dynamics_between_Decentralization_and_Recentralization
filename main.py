@@ -35,7 +35,7 @@ Variables
 params = {
     'n_l': [0, 10],
     'dr': [1, 0.2],
-    'p': [0.2, 0.5, 1],
+    'p': [1, 0.5, 0.2],
     'k': [0, 5, 10],
     'rds': [80],
     'v': [10],
@@ -45,7 +45,7 @@ params = {
     't': [10000],
 }
 
-
+i = 0
 vote_df = []
 dele_df = []
 nperf_df = []
@@ -55,6 +55,8 @@ part_df = []
 gini_df = []
 
 for config in param_grid(params):
+    i += 1
+
     rds = config.get('rds')
     v = config.get('v')
     m = config.get('m')
@@ -66,6 +68,7 @@ for config in param_grid(params):
     k = config.get('k')
     p = config.get('p')
 
+    print("dr: {}, n_l: {}, k: {}, p: {}".format(dr, n_l, k, p))
     """
     if __name__ == "__main__":
         rds = 80
@@ -112,7 +115,6 @@ for config in param_grid(params):
     infl_df.append(mean_infls)
     gini_df.append(mean_ginis)
 
-    print(param_grid(params))
     """
     # Plot Results
     plot_vote_dele_result(mean_votes, mean_deles, n_u, dr, n_l, p, k)
@@ -130,11 +132,11 @@ part_df = pd.DataFrame(part_df)
 infl_df = pd.DataFrame(infl_df)
 gini_df = pd.DataFrame(gini_df)
 
-vote_df.to_csv('/result/vote.csv')
-dele_df.to_csv('/result/dele.csv')
-perf_df.to_csv('/result/perf.csv')
-nperf_df.to_csv('/result/nperf.csv')
-part_df.to_csv('/result/part.csv')
-infl_df.to_csv('/result/infl.csv')
-gini_df.to_csv('/result/gini.csv')
+vote_df.to_csv('result/vote.csv')
+dele_df.to_csv('result/dele.csv')
+perf_df.to_csv('result/perf.csv')
+nperf_df.to_csv('result/nperf.csv')
+part_df.to_csv('result/part.csv')
+infl_df.to_csv('result/infl.csv')
+gini_df.to_csv('result/gini.csv')
 # %%
