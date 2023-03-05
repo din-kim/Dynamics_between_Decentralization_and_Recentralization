@@ -1,8 +1,5 @@
 # %%
 # Import Classes and Functions
-from dataclasses import replace
-from pytest import param
-from sympy import re
 from functions.others import *
 from functions.runner import *
 from functions.generators import *
@@ -32,56 +29,35 @@ Variables
 - dr: distribution rate of tokens
 """
 # Setting Variables
+
+rds = 80
+v = 10
+m = 100
+n_u = 100
+n_o = 50
+t = 10000
+
 params = {
     'n_l': [0, 10],
     'dr': [1, 0.2],
     'p': [1, 0.5, 0.2],
-    'k': [0, 5, 10],
-    'rds': [80],
-    'v': [10],
-    'm': [100],
-    'n_u': [100],
-    'n_o': [50],
-    't': [10000],
+    'k': [0, 5, 10]
 }
 
-i = 0
-vote_df = []
-dele_df = []
-nperf_df = []
-perf_df = []
-infl_df = []
-part_df = []
-gini_df = []
+vote_df_fn = pd.DataFrame()
+dele_df_fn = pd.DataFrame()
+perf_df_fn = pd.DataFrame()
+nperf_df_fn = pd.DataFrame()
+part_df_fn = pd.DataFrame()
+infl_df_fn = pd.DataFrame()
+gini_df_fn = pd.DataFrame()
 
 for config in param_grid(params):
-    i += 1
-
-    rds = config.get('rds')
-    v = config.get('v')
-    m = config.get('m')
-    t = config.get('t')
-    n_u = config.get('n_u')
-    n_o = config.get('n_o')
     n_l = config.get('n_l')
     dr = config.get('dr')
     k = config.get('k')
     p = config.get('p')
 
-    print("dr: {}, n_l: {}, k: {}, p: {}".format(dr, n_l, k, p))
-    """
-    if __name__ == "__main__":
-        rds = 80
-        v = 10
-        m = 100
-        n_u = 100
-        n_o = 50
-        k = 0
-        t = 10000
-        p = 0.2
-        dr = 0.2
-        n_l = 10
-    """
     method = get_vote_method(n_l)
 
     # Initiate Reality
@@ -107,13 +83,20 @@ for config in param_grid(params):
     mean_ginis = mean_result(ginis)
     mean_infls = mean_influencers(influencers, n_o, rds, v, c_index=0.05)
 
-    vote_df.append(mean_votes)
-    dele_df.append(mean_deles)
-    perf_df.append(mean_perfs)
-    nperf_df.append(mean_nperfs)
-    part_df.append(mean_parts)
-    infl_df.append(mean_infls)
-    gini_df.append(mean_ginis)
+    vote_df = pd.DataFrame(mean_votes)
+    dele_df = pd.DataFrame(mean_deles)
+    perf_df = pd.DataFrame(mean_perfs)
+    nperf_df = pd.DataFrame(mean_nperfs)
+    part_df = pd.DataFrame(mean_parts)
+    infl_df = pd.DataFrame(mean_infls)
+    gini_df = pd.DataFrame(mean_ginis)
+
+    df_list = [vote_df, dele_df, perf_df, nperf_df, part_df, infl_df, gini_df]
+    for df in df_list:
+        df['n_l'] = n_l
+        df['dr'] = dr
+        df['p'] = p
+        df['k'] = k
 
     """
     # Plot Results
@@ -123,20 +106,19 @@ for config in param_grid(params):
     plot_gini_res(mean_ginis, dr, n_l, p, k)
     plot_infl_res(mean_infls, dr, n_l, p, k)
     """
+    vote_df_fn = vote_df_fn.append(vote_df)
+    dele_df_fn = dele_df_fn.append(dele_df)
+    perf_df_fn = perf_df_fn.append(perf_df)
+    nperf_df_fn = nperf_df_fn.append(nperf_df)
+    part_df_fn = part_df_fn.append(part_df)
+    infl_df_fn = infl_df_fn.append(infl_df)
+    gini_df_fn = gini_df_fn.append(gini_df)
 
-vote_df = pd.DataFrame(vote_df)
-dele_df = pd.DataFrame(dele_df)
-perf_df = pd.DataFrame(perf_df)
-nperf_df = pd.DataFrame(nperf_df)
-part_df = pd.DataFrame(part_df)
-infl_df = pd.DataFrame(infl_df)
-gini_df = pd.DataFrame(gini_df)
-
-vote_df.to_csv('result/vote.csv')
-dele_df.to_csv('result/dele.csv')
-perf_df.to_csv('result/perf.csv')
-nperf_df.to_csv('result/nperf.csv')
-part_df.to_csv('result/part.csv')
-infl_df.to_csv('result/infl.csv')
-gini_df.to_csv('result/gini.csv')
+vote_df_fn.to_csv('result/vote.csv')
+dele_df_fn.to_csv('result/dele.csv')
+perf_df_fn.to_csv('result/perf.csv')
+nperf_df_fn.to_csv('result/nperf.csv')
+part_df_fn.to_csv('result/part.csv')
+infl_df_fn.to_csv('result/infl.csv')
+gini_df_fn.to_csv('result/gini.csv')
 # %%
