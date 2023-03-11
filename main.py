@@ -1,49 +1,110 @@
-# Import Classes
-import random
-from Reality import *
-from Organization import *
-from User import *
-from functions import *
-
-# Import libraries
+# %%
+# Import Classes and Functions
+from functions.others import *
+from functions.runner import *
+from functions.generators import *
+from classes.User import *
+from classes.Organization import *
+from classes.Reality import *
+# Import Libraries
 import numpy as np
+import pandas as pd
+import random
+import matplotlib.pyplot as plt
 np.set_printoptions(4)
 random.seed(101)
 
 
 """
 Variables
+- rds: rounds
+- v: number of votes in each round
 - m : number of attributes
-- n : number of users
-- p : participation rate
+- n_u : number of users
+- n_o : number of organizations
+- n_l: number of leaders
 - k : degree of interdependence
+- p : participation rate
 - t : total number of tokens
 - dr: distribution rate of tokens
 """
+# Setting Variables
 
-rds = 1
+rds = 8
 v = 10
-m = 10
-n = 5
-k = 0
-t = 100
+m = 100
+n_u = 100
+n_o = 5
+t = 10000
 dr = 1
-tokens = list(distribute_tokens(n, t, dr))
-ids = list(range(n))
+n_l = 0
 
-# Initiate Reality and Organization
-r = Reality(m)
-o = Organization(m, r)
+params = {
+    # 'n_l': [0],
+    # 'dr': [1],
+    'p': [0.2, 0.5, 1],
+    'k': [0, 5, 10],
+    'dele_size': [5, 10, 20, 50],
+    'dele_duration': [1, 5, 10, 20, 50]
+}
 
-# Initiate Users
-users = []
-for i in range(n):
-    globals()['user{}'.format(i)] = User(m, k, o, ids, tokens)
-    users.append(globals()['user{}'.format(i)])
+vote_df = pd.DataFrame()
+dele_df = pd.DataFrame()
+perf_df = pd.DataFrame()
+part_df = pd.DataFrame()
+infl_df = pd.DataFrame()
+gini_df = pd.DataFrame()
 
+for config in param_grid(params):
+    #n_l = config.get('n_l')
+    #dr = config.get('dr')
+    k = config.get('k')
+    p = config.get('p')
+    dele_size = config.get('dele_size')
+    dele_duration = config.get('dele_duration')
 
-if __name__ == '__main__':
-    for rd in range(rds):
-        vote_list = generate_vote_list(m, v)
-        ctr_list, know_list, perf_list = vote_handler(
-            r, o, users, vote_list, show_vote_result='y', show_vote_change='y')
+    method = get_vote_method(n_l)
+
+    # Initiate Reality
+    reality = generate_reality(m)
+
+    # Initiate Organizations
+    organizations = generate_organizations(m, reality, n_o)
+
+    # Initiate Organization
+    users, leaders = generate_users(
+        reality, organizations, n_u, n_l, m, k, p, t, dr)
+
+    # Run Simulation - method: "random" or "leader"
+    votes, delegations, participations, performances, influencers, ginis = run_model(
+        reality, organizations, users, leaders, method, rds, v, dele_size, dele_duration)
+
+    # Mean Results
+    mean_votes = mean_result(votes)
+    mean_deles = mean_result(delegations)
+    mean_perfs = mean_result(performances)
+    mean_parts = mean_result(participations)
+    mean_ginis = mean_result(ginis)
+    mean_infls = mean_influencers(influencers, n_o, rds, v, c_index=0.05)
+
+    dele_df['p={}, k={}, size={}, dur={}'.format(
+        p, k, dele_size, dele_duration)] = pd.Series(mean_deles)
+    vote_df['p={}, k={}, size={}, dur={}'.format(
+        p, k, dele_size, dele_duration)] = pd.Series(mean_votes)
+    perf_df['p={}, k={}, size={}, dur={}'.format(
+        p, k, dele_size, dele_duration)] = pd.Series(mean_perfs)
+    part_df['p={}, k={}, size={}, dur={}'.format(
+        p, k, dele_size, dele_duration)] = pd.Series(mean_parts)
+    gini_df['p={}, k={}, size={}, dur={}'.format(
+        p, k, dele_size, dele_duration)] = pd.Series(mean_ginis)
+    infl_df['p={}, k={}, size={}, dur={}'.format(
+        p, k, dele_size, dele_duration)] = pd.Series(mean_infls)
+
+vote_df.to_csv('result/vote.csv')
+dele_df.to_csv('result/dele.csv')
+perf_df.to_csv('result/perf.csv')
+part_df.to_csv('result/part.csv')
+infl_df.to_csv('result/infl.csv')
+gini_df.to_csv('result/gini.csv')
+
+# %%
