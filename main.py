@@ -1,5 +1,6 @@
 # %%
 # Import Classes and Functions
+from sympy import per
 from functions.others import *
 from functions.runner import *
 from functions.generators import *
@@ -38,7 +39,7 @@ n_o = 50
 t = 10000
 
 params = {
-    'n_l': [0],
+    'n_l': [10],
     'dr': [1],
     'p': [0.2, 0.5, 1],
     'k': [0, 5, 10]
@@ -50,6 +51,9 @@ perf_df = pd.DataFrame()
 part_df = pd.DataFrame()
 infl_df = pd.DataFrame()
 gini_df = pd.DataFrame()
+df_list = [vote_df, dele_df, perf_df, part_df, infl_df, gini_df]
+
+print("Inititate simulation now!")
 
 for config in param_grid(params):
     n_l = config.get('n_l')
@@ -95,4 +99,6 @@ part_df.to_csv('result/part.csv')
 infl_df.to_csv('result/infl.csv')
 gini_df.to_csv('result/gini.csv')
 
+print()
+print("Result exported successfully!")
 # %%
