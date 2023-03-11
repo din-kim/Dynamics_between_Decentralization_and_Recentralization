@@ -1,4 +1,8 @@
 .ipynb_checkpoints
 */.ipynb_checkpoints/*
 .pyc
-/__pycache__/*
+classes/__pycache__/*
+functions/__pycache__/*
+.DS_Store
+/images/*
+/result/*
