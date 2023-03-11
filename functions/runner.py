@@ -6,7 +6,7 @@ from functions.others import *
 """
 
 
-def vote_handler(organization, users, vote_list):
+def vote_handler(organization, users, vote_list, dele_size, dele_duration):
     vote_ctr_sum_list = []
     dele_ctr_sum_list = []
     part_list = []
@@ -16,7 +16,7 @@ def vote_handler(organization, users, vote_list):
 
     for vote_target in vote_list:
         vote_result, chosen_value = organization.initiate_vote_on(
-            vote_target, users)
+            vote_target, users, dele_size, dele_duration)
 
         infl = organization.get_user_influence(vote_result, chosen_value)
         infl_list.append(infl)
@@ -40,7 +40,7 @@ def vote_handler(organization, users, vote_list):
     return vote_ctr_sum_list, dele_ctr_sum_list, part_list, perf_list, infl_list, gini_list
 
 
-def run_model(reality, organizations, users_list, leaders_list, vote_method, rds, v):
+def run_model(reality, organizations, users_list, leaders_list, vote_method, rds, v, dele_size, dele_duration):
     m = reality.m
     n_o = len(organizations)
     # Create empty info list
@@ -67,7 +67,7 @@ def run_model(reality, organizations, users_list, leaders_list, vote_method, rds
                 vote_list = generate_leaders_vote_list(leaders_list[i], m, v)
 
             vs, ds, ps, pfs, infs, gs = vote_handler(
-                organizations[i], users_list[i], vote_list)
+                organizations[i], users_list[i], vote_list, dele_size, dele_duration)
 
             votes.append(vs)
             deles.append(ds)

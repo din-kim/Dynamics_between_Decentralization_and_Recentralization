@@ -20,9 +20,10 @@ class Organization:
         self.performance = cnt/self.m
         return self.performance
 
-    def initiate_vote_on(self, vote_on, users):
+    def initiate_vote_on(self, vote_on, users, dele_size, dele_duration):
         self.users = users
         self.vote_on = vote_on
+        self.changed = False
         vote_result = [0, 0]
 
         # re-initiate the values in every vote
@@ -35,11 +36,15 @@ class Organization:
             user.changed = False
             user.vote_ctr = 0
             user.delegate_ctr = 0
-            self.changed = False
+            if user.delegate_total_ctr > dele_duration:
+                user.delegate_total_ctr = 0
+                user.delegating = False
+                users[user.delegatee_id].delegator_num -= 1
+                user.delegatee_id = None
 
         for user in users:
             # Call vote function - here begins vote, search, and delegate
-            result = user.search(users, vote_on)
+            result = user.search(users, vote_on, dele_size)
             if result != None:
                 vote_on_value, token = result
                 vote_result[vote_on_value] += token

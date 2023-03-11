@@ -23,6 +23,10 @@ class User:
         self.leader = False
         self.vote_ctr = 0
         self.delegate_ctr = 0
+        self.delegate_total_ctr = 0
+        self.delegating = False
+        self.delegatee_id = None
+        self.delegator_num = 0
 
     def get_performance(self):
         cnt = 0
@@ -44,6 +48,8 @@ class User:
     def delegate(self, delegatee):
         self.voted = True
         self.delegate_ctr += 1
+        self.delegate_total_ctr += 1
+        delegatee.delegator_num += 1
         delegatee.delegated = True
         delegatee.tokens_delegated += self.token
         return
@@ -62,7 +68,7 @@ class User:
         else:
             return False
 
-    def search(self, users, vote_on):
+    def search(self, users, vote_on, dele_size):
         n_u = len(users)
         self.vote_on = vote_on
         if self.delegated:
@@ -73,22 +79,29 @@ class User:
             return self.vote(vote_on)
         else:
             search = random.sample(users, round(n_u*self.p))
+            # Exclude self from the searched list
             if self in search:
                 search.remove(self)
-
             max_performance = 0
-            for s in search:
-                if s.p_yn:
-                    if self.check_interdependence(s):
-                        if s.performance > max_performance:
-                            max_performance = s.performance
-                            max_idx = s.id
 
-            if self.performance < max_performance:
-                delegatee = users[max_idx]
+            if self.delegating:
+                delegatee = self.delegatee_id
                 return self.delegate(delegatee)
-            elif self.performance >= max_performance:
-                if self.p_yn:
-                    return self.vote(vote_on)
+            else:
+                for s in search:
+                    if s.delegator_num < dele_size:
+                        if self.check_interdependence(s):
+                            if s.performance > max_performance:
+                                self.delegatee_id = s.id
+                                max_performance = s.performance
+                                max_idx = s.id
+
+                if self.performance < max_performance:
+                    self.delegating = True
+                    delegatee = users[max_idx]
+                    return self.delegate(delegatee)
                 else:
-                    return
+                    if self.p_yn:
+                        return self.vote(vote_on)
+                    else:
+                        return

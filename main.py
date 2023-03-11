@@ -30,18 +30,22 @@ Variables
 """
 # Setting Variables
 
-rds = 80
+rds = 8
 v = 10
 m = 100
 n_u = 100
-n_o = 50
+n_o = 5
 t = 10000
+dr = 1
+n_l = 0
 
 params = {
-    'n_l': [0],
-    'dr': [1],
+    # 'n_l': [0],
+    # 'dr': [1],
     'p': [0.2, 0.5, 1],
-    'k': [0, 5, 10]
+    'k': [0, 5, 10],
+    'dele_size': [5, 10, 20, 50],
+    'dele_duration': [1, 5, 10, 20, 50]
 }
 
 vote_df = pd.DataFrame()
@@ -52,10 +56,12 @@ infl_df = pd.DataFrame()
 gini_df = pd.DataFrame()
 
 for config in param_grid(params):
-    n_l = config.get('n_l')
-    dr = config.get('dr')
+    #n_l = config.get('n_l')
+    #dr = config.get('dr')
     k = config.get('k')
     p = config.get('p')
+    dele_size = config.get('dele_size')
+    dele_duration = config.get('dele_duration')
 
     method = get_vote_method(n_l)
 
@@ -71,7 +77,7 @@ for config in param_grid(params):
 
     # Run Simulation - method: "random" or "leader"
     votes, delegations, participations, performances, influencers, ginis = run_model(
-        reality, organizations, users, leaders, method, rds, v)
+        reality, organizations, users, leaders, method, rds, v, dele_size, dele_duration)
 
     # Mean Results
     mean_votes = mean_result(votes)
@@ -81,12 +87,18 @@ for config in param_grid(params):
     mean_ginis = mean_result(ginis)
     mean_infls = mean_influencers(influencers, n_o, rds, v, c_index=0.05)
 
-    vote_df['p={}, k={}'.format(p, k)] = pd.Series(mean_votes)
-    dele_df['p={}, k={}'.format(p, k)] = pd.Series(mean_deles)
-    perf_df['p={}, k={}'.format(p, k)] = pd.Series(mean_perfs)
-    part_df['p={}, k={}'.format(p, k)] = pd.Series(mean_parts)
-    gini_df['p={}, k={}'.format(p, k)] = pd.Series(mean_ginis)
-    infl_df['p={}, k={}'.format(p, k)] = pd.Series(mean_infls)
+    dele_df['p={}, k={}, size={}, dur={}'.format(
+        p, k, dele_size, dele_duration)] = pd.Series(mean_deles)
+    vote_df['p={}, k={}, size={}, dur={}'.format(
+        p, k, dele_size, dele_duration)] = pd.Series(mean_votes)
+    perf_df['p={}, k={}, size={}, dur={}'.format(
+        p, k, dele_size, dele_duration)] = pd.Series(mean_perfs)
+    part_df['p={}, k={}, size={}, dur={}'.format(
+        p, k, dele_size, dele_duration)] = pd.Series(mean_parts)
+    gini_df['p={}, k={}, size={}, dur={}'.format(
+        p, k, dele_size, dele_duration)] = pd.Series(mean_ginis)
+    infl_df['p={}, k={}, size={}, dur={}'.format(
+        p, k, dele_size, dele_duration)] = pd.Series(mean_infls)
 
 vote_df.to_csv('result/vote.csv')
 dele_df.to_csv('result/dele.csv')
