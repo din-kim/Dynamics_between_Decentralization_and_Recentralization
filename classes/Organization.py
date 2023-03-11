@@ -87,13 +87,13 @@ class Organization:
                 p_cnt += 1
         return p_cnt
 
-    def get_org_performance(self):
-        perf_sum = 0
-        n = len(self.users)
-        for user in self.users:
-            perf_sum += user.performance
-        perf_avg = round(perf_sum/n, 4)
-        return perf_avg
+    # def get_org_performance(self):
+    #     perf_sum = 0
+    #     n = len(self.users)
+    #     for user in self.users:
+    #         perf_sum += user.performance
+    #     perf_avg = round(perf_sum/n, 4)
+    #     return perf_avg
 
     def get_user_influence(self, vote_result, chosen_value):
         user_influences = []

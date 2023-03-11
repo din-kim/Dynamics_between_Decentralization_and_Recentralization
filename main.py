@@ -38,19 +38,18 @@ n_o = 50
 t = 10000
 
 params = {
-    'n_l': [0, 10],
-    'dr': [1, 0.2],
-    'p': [1, 0.5, 0.2],
+    'n_l': [0],
+    'dr': [1],
+    'p': [0.2, 0.5, 1],
     'k': [0, 5, 10]
 }
 
-vote_df_fn = pd.DataFrame()
-dele_df_fn = pd.DataFrame()
-perf_df_fn = pd.DataFrame()
-nperf_df_fn = pd.DataFrame()
-part_df_fn = pd.DataFrame()
-infl_df_fn = pd.DataFrame()
-gini_df_fn = pd.DataFrame()
+vote_df = pd.DataFrame()
+dele_df = pd.DataFrame()
+perf_df = pd.DataFrame()
+part_df = pd.DataFrame()
+infl_df = pd.DataFrame()
+gini_df = pd.DataFrame()
 
 for config in param_grid(params):
     n_l = config.get('n_l')
@@ -71,54 +70,29 @@ for config in param_grid(params):
         reality, organizations, n_u, n_l, m, k, p, t, dr)
 
     # Run Simulation - method: "random" or "leader"
-    votes, delegations, participations, new_performances, performances, influencers, ginis = run_model(
+    votes, delegations, participations, performances, influencers, ginis = run_model(
         reality, organizations, users, leaders, method, rds, v)
 
     # Mean Results
     mean_votes = mean_result(votes)
     mean_deles = mean_result(delegations)
     mean_perfs = mean_result(performances)
-    mean_nperfs = mean_result(new_performances)
     mean_parts = mean_result(participations)
     mean_ginis = mean_result(ginis)
     mean_infls = mean_influencers(influencers, n_o, rds, v, c_index=0.05)
 
-    vote_df = pd.DataFrame(mean_votes)
-    dele_df = pd.DataFrame(mean_deles)
-    perf_df = pd.DataFrame(mean_perfs)
-    nperf_df = pd.DataFrame(mean_nperfs)
-    part_df = pd.DataFrame(mean_parts)
-    infl_df = pd.DataFrame(mean_infls)
-    gini_df = pd.DataFrame(mean_ginis)
+    vote_df['p={}, k={}'.format(p, k)] = pd.Series(mean_votes)
+    dele_df['p={}, k={}'.format(p, k)] = pd.Series(mean_deles)
+    perf_df['p={}, k={}'.format(p, k)] = pd.Series(mean_perfs)
+    part_df['p={}, k={}'.format(p, k)] = pd.Series(mean_parts)
+    gini_df['p={}, k={}'.format(p, k)] = pd.Series(mean_ginis)
+    infl_df['p={}, k={}'.format(p, k)] = pd.Series(mean_infls)
 
-    df_list = [vote_df, dele_df, perf_df, nperf_df, part_df, infl_df, gini_df]
-    for df in df_list:
-        df['n_l'] = n_l
-        df['dr'] = dr
-        df['p'] = p
-        df['k'] = k
+vote_df.to_csv('result/vote.csv')
+dele_df.to_csv('result/dele.csv')
+perf_df.to_csv('result/perf.csv')
+part_df.to_csv('result/part.csv')
+infl_df.to_csv('result/infl.csv')
+gini_df.to_csv('result/gini.csv')
 
-    """
-    # Plot Results
-    plot_vote_dele_result(mean_votes, mean_deles, n_u, dr, n_l, p, k)
-    plot_perf_result(mean_perfs, dr, n_l, p, k)
-    plot_part_res(mean_parts, n_u, dr, n_l, p, k)
-    plot_gini_res(mean_ginis, dr, n_l, p, k)
-    plot_infl_res(mean_infls, dr, n_l, p, k)
-    """
-    vote_df_fn = vote_df_fn.append(vote_df)
-    dele_df_fn = dele_df_fn.append(dele_df)
-    perf_df_fn = perf_df_fn.append(perf_df)
-    nperf_df_fn = nperf_df_fn.append(nperf_df)
-    part_df_fn = part_df_fn.append(part_df)
-    infl_df_fn = infl_df_fn.append(infl_df)
-    gini_df_fn = gini_df_fn.append(gini_df)
-
-vote_df_fn.to_csv('result/vote.csv')
-dele_df_fn.to_csv('result/dele.csv')
-perf_df_fn.to_csv('result/perf.csv')
-nperf_df_fn.to_csv('result/nperf.csv')
-part_df_fn.to_csv('result/part.csv')
-infl_df_fn.to_csv('result/infl.csv')
-gini_df_fn.to_csv('result/gini.csv')
 # %%

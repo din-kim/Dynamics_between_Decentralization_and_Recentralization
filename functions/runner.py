@@ -11,7 +11,6 @@ def vote_handler(organization, users, vote_list):
     dele_ctr_sum_list = []
     part_list = []
     perf_list = []
-    new_perf_list = []
     infl_list = []
     gini_list = []
 
@@ -32,16 +31,13 @@ def vote_handler(organization, users, vote_list):
         part = organization.get_participation_ctrs()
         part_list.append(part)
 
-        new_perf = organization.get_org_performance()
-        new_perf_list.append(new_perf)
-
         perf = organization.get_performance()
         perf_list.append(perf)
 
         gini = organization.get_gini_coefficient(users)
         gini_list.append(gini)
 
-    return vote_ctr_sum_list, dele_ctr_sum_list, part_list, new_perf_list, perf_list, infl_list, gini_list
+    return vote_ctr_sum_list, dele_ctr_sum_list, part_list, perf_list, infl_list, gini_list
 
 
 def run_model(reality, organizations, users_list, leaders_list, vote_method, rds, v):
@@ -52,7 +48,6 @@ def run_model(reality, organizations, users_list, leaders_list, vote_method, rds
     deles_fn = []
     parts_fn = []
     perfs_fn = []
-    nperf_fn = []
     infls_fn = []
     ginis_fn = []
 
@@ -63,7 +58,6 @@ def run_model(reality, organizations, users_list, leaders_list, vote_method, rds
         perfs = []
         infls = []
         ginis = []
-        nperf = []
 
         # Initiate Vote
         for _ in range(rds):
@@ -72,13 +66,12 @@ def run_model(reality, organizations, users_list, leaders_list, vote_method, rds
             elif vote_method == "leader":
                 vote_list = generate_leaders_vote_list(leaders_list[i], m, v)
 
-            vs, ds, ps, npfs, pfs, infs, gs = vote_handler(
+            vs, ds, ps, pfs, infs, gs = vote_handler(
                 organizations[i], users_list[i], vote_list)
 
             votes.append(vs)
             deles.append(ds)
             parts.append(ps)
-            nperf.append(npfs)
             perfs.append(pfs)
             infls.append(infs)
             ginis.append(gs)
@@ -86,9 +79,8 @@ def run_model(reality, organizations, users_list, leaders_list, vote_method, rds
         votes_fn.append(votes)
         deles_fn.append(deles)
         parts_fn.append(parts)
-        nperf_fn.append(nperf)
         perfs_fn.append(perfs)
         infls_fn.append(infls)
         ginis_fn.append(ginis)
 
-    return votes_fn, deles_fn, parts_fn, nperf_fn, perfs_fn, infls_fn, ginis_fn
+    return votes_fn, deles_fn, parts_fn, perfs_fn, infls_fn, ginis_fn
