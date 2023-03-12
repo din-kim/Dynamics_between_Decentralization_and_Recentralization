@@ -85,7 +85,7 @@ class User:
             max_performance = 0
 
             if self.delegating:
-                delegatee = self.delegatee_id
+                delegatee = users[self.delegatee_id]
                 return self.delegate(delegatee)
             else:
                 for s in search:

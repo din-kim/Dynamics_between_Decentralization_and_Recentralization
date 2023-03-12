@@ -10,7 +10,6 @@ from classes.Reality import *
 import numpy as np
 import pandas as pd
 import random
-import matplotlib.pyplot as plt
 np.set_printoptions(4)
 random.seed(101)
 
@@ -29,12 +28,11 @@ Variables
 - dr: distribution rate of tokens
 """
 # Setting Variables
-
-rds = 8
+rds = 80
 v = 10
 m = 100
 n_u = 100
-n_o = 5
+n_o = 50
 t = 10000
 dr = 1
 n_l = 0
